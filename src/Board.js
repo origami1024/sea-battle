@@ -5,8 +5,8 @@ export default class Canvas extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      w: 10,
-      h: 10,
+      w: 8,
+      h: 8,
       cellSize: this.props.cellSize,
       objects: [
         {
@@ -52,11 +52,14 @@ export default class Canvas extends Component {
 
   onClick = e => {
     //calculate cell coordinates where the click happened
-    let localX = e.pageX - e.target.offsetLeft
-    let localY = e.pageY - e.target.offsetTop
-    let cellX = ~~(localX / this.state.cellSize)
-    let cellY = ~~(localY / this.state.cellSize)
-    this.setState({selectedCell: [cellX, cellY]})
+    if (!this.props.notclickable) {
+      let localX = e.pageX - e.target.offsetLeft
+      let localY = e.pageY - e.target.offsetTop
+      let cellX = ~~(localX / this.state.cellSize)
+      let cellY = ~~(localY / this.state.cellSize)
+      this.setState({selectedCell: [cellX, cellY]})
+    }
+    
   }
   drawShips = e => {
     if (this.img){

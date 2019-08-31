@@ -20,7 +20,6 @@ const cmds = {
   lgn: (socket, data) => {
     let user = {
       socket: socket,
-      //uID: userCounter, uID is key in dic
       uName: data.name,
       uPW: data.pw,
       inRoom: -1
@@ -28,7 +27,11 @@ const cmds = {
     clog('user with id ' + userCounter + ' logd')
     users[userCounter] = user
     userCounter += 1
-    socket.send('{"cmd": "lok"}')//login ok = lok
+    try {
+      socket.send('{"cmd": "lok"}')//login ok = lok
+    } catch {
+      console.log('error sending at lgn')
+    }
   },
   prt: () => {
     clog('prt, users.length: ')
@@ -58,10 +61,15 @@ const cmds = {
   },
   get: (socket) => {
     clog('get')
-    socket.send(JSON.stringify({
-      cmd: 'lst',
-      rooms: rooms
-    }))
+    try {
+      socket.send(JSON.stringify({
+        cmd: 'lst',
+        rooms: rooms
+      }))
+    } catch {
+      console.log('error sending at get')
+    }
+    
   },
   cre: (socket, cmd, usrID) => {
     clog('cre')//create room
@@ -77,11 +85,16 @@ const cmds = {
           opponentName: '--empty--'
         }
         users[usrID].inRoom = roomCounter
-        socket.send(JSON.stringify({
-          cmd: 'rok', //room ok, here's ur id
-          roomID: roomCounter,
-          roomName: cmd.gName,
-        }))
+        try{
+          socket.send(JSON.stringify({
+            cmd: 'rok', //room ok, here's ur id
+            roomID: roomCounter,
+            roomName: cmd.gName,
+          }))
+        } catch {
+          console.log('ERROR sending at cre')
+        }
+        
         roomCounter += 1
       }
     } else {
@@ -106,7 +119,12 @@ const cmds = {
               clog('some dud gon get keked')
               // there is the other dud
               //kek the other dud out
-              users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host left the room"}')
+              try {
+                users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host left the room"}')
+              } catch {
+                console.log('ERROR sending at lea1')
+              }
+              
               users[rooms[users[usrID].inRoom].open].inRoom = -1
             }
             //delete the instance
@@ -117,13 +135,21 @@ const cmds = {
             clog('nonhost left a room')
             rooms[users[usrID].inRoom].open = -1
             //send host info that the dud left
-            users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
-              cmd: 'ole'//opponent left
-            }))
+            try {
+              users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
+                cmd: 'ole'//opponent left
+              }))
+            } catch {
+              console.log('ERROR sending at lea2')
+            }
+            
           }
           users[usrID].inRoom = -1
-          socket.send('{"cmd": "ler"}')
-         
+          try {
+            socket.send('{"cmd": "ler"}')
+          } catch {
+            console.log('ERROR sending at ler')
+          }
         } else {
           clog('error, user trying to exit nonexistent room')
         }
@@ -143,24 +169,39 @@ const cmds = {
       //duds inRoom gets rewr
       users[usrID].inRoom = cmd.rid
       //send back that dud joined succesfully
-      socket.send(JSON.stringify({
-        cmd: 'jok',
-        rid: cmd.rid,
-        roomData: rooms[cmd.rid]
-      }))
+      try {
+        socket.send(JSON.stringify({
+          cmd: 'jok',
+          rid: cmd.rid,
+          roomData: rooms[cmd.rid]
+        }))
+      } catch {
+        console.log('ERROR sending at joi1')
+      }
+      
       //send to host that he got joind by smn
-      users[rooms[cmd.rid].hostID].socket.send(JSON.stringify({
-        cmd: 'jnd',
-        joinerID: usrID,
-        joinerName: users[usrID].uName
-      }))
+      try {
+        users[rooms[cmd.rid].hostID].socket.send(JSON.stringify({
+          cmd: 'jnd',
+          joinerID: usrID,
+          joinerName: users[usrID].uName
+        }))
+      } catch {
+        console.log('ERROR sending at joi2')
+      }
+      
       
     } else {
       clog('Joi.Cp1Fail')
-      socket.send(JSON.stringify({
-        cmd: 'jno',
-        why: 'you are too weak and ugly for this room'
-      })) //maybe add why: 'reasons'...
+      try {
+        socket.send(JSON.stringify({
+          cmd: 'jno',
+          why: 'you are too weak and ugly for this room'
+        }))
+      } catch {
+        console.log('ERROR sending at joi3')
+      }
+      
     }
 
   },
@@ -172,15 +213,25 @@ const cmds = {
       //check if opponent exist
       if (rooms[users[usrID].inRoom].open !== -1) {
         //send to dud that he is keked
-        users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host keked you"}')
+        try {
+          users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host keked you"}')
+        } catch {
+          console.log('ERROR sending at kik1')
+        }
+        
         users[rooms[users[usrID].inRoom].open].inRoom = -1
         //change room
         rooms[users[usrID].inRoom].open = -1
         rooms[users[usrID].inRoom].opponentName = '--empty--'
         //send to host, kek success
-        socket.send(JSON.stringify({
-          cmd: 'ole'
-        }))
+        try {
+          socket.send(JSON.stringify({
+            cmd: 'ole'
+          }))
+        } catch {
+          console.log('ERROR sending at kik2')
+        }
+        
       }
     }
   },
@@ -190,22 +241,45 @@ const cmds = {
     //check if the sender is in the room
     if ((users[usrID]) && (users[usrID].inRoom !== -1) && (rooms[users[usrID].inRoom].open !== -1) ) {
       if (rooms[users[usrID].inRoom].hostID === usrID) {
-        users[rooms[users[usrID].inRoom].open].socket.send(JSON.stringify({
-          cmd: 'rmg',
-          msg: cmd.msg
-        }))
+        try{
+          users[rooms[users[usrID].inRoom].open].socket.send(JSON.stringify({
+            cmd: 'rmg',
+            msg: cmd.msg
+          }))
+        } catch {
+          console.log('ERROR sending at lmg1')
+        }
+        
       } else
       if (rooms[users[usrID].inRoom].open === usrID) {
-        users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
-          cmd: 'rmg',
-          msg: cmd.msg
-        }))
+        try {
+          users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
+            cmd: 'rmg',
+            msg: cmd.msg
+          }))
+        } catch {
+          console.log('ERROR sending at lmg1')
+        }
+        
       }
     }
   },
-  rdy: (socket, usrID) => {
-    //player in room is rdy
-    //skip it for now
+  all: (socket, usrID) => {
+    //get all users
+    clog('all')
+    let tmp = []
+    for (key in users) {
+      tmp.push({ uID: key, uName: users[key].uName})
+    }
+    console.log(tmp)
+    try {
+      socket.send(JSON.stringify({
+        cmd: 'her',
+        uList: tmp
+      }))
+    } catch {
+      console.log('error at all')
+    }
   },
   ggo: (socket, cmd, usrID) => {
     //start the game
@@ -242,6 +316,10 @@ const cmds = {
       }
       
     }
+  },
+  rdy: (socket, usrID) => {
+    //player in room is rdy
+    //skip it for now
   },
   trn: (socket, cmd) => {
     //receive turn data

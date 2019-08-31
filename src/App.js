@@ -5,6 +5,7 @@ import NavBar from './NavBar'
 import ProfileControl from './ProfileControl'
 import ChatForm from './ChatForm'
 
+import ship2 from './smapl2x.png';
 
 
 class StartTimer {
@@ -42,6 +43,7 @@ class App extends Component {
       stage: 'login', //starting should be 'login'
       substage: '',   //starting should be ''
       user: {name: null},
+      onlineUsersList: {},
       gamesList: [],
       roomsData: [],
       rDActiveIndex: -1,
@@ -177,6 +179,14 @@ class App extends Component {
             this.addRoomMsg(this.state.room.opponentName,data.msg)
           }
         } else
+        if (data.cmd === 'her') {
+          //online user list for general lobby arrived
+          console.log('her! ')
+          if (data.uList) {
+            console.log(data.uList)
+            this.setState({onlineUsersList: data.uList})
+          }
+        } else
         if (data.cmd === 'new') {
           //game starts
           //do 5-4-3-2-1
@@ -276,16 +286,24 @@ class App extends Component {
     }
     
   }
+
   onProfileChange = (currentStage, uname) => {
     this.setState({stage: currentStage, user: {name: uname}}, e=>{
       //drop from lobby and battle
       this.queryGLRefresh()
+      
       console.log(this.state.user)
     })
   }
   queryGLRefresh = e => {
     this.ws.send(JSON.stringify({
       cmd:"get"
+    }))
+    this.queryOURefresh()
+  }
+  queryOURefresh = e => {
+    this.ws.send(JSON.stringify({
+      cmd:"all"
     }))
   }
   clickRoomList = room => {
@@ -302,6 +320,18 @@ class App extends Component {
       }
     }
     this.setState({roomsData:{ ...this.state.roomsData}})*/
+  }
+
+  prepareOnlineDudes = list => {
+    let tmpList = [] 
+    for (let key in list) {
+      tmpList.push(
+        <div key={key}>
+          <a href={"#" + list[key].uID }>{list[key].uName}</a>
+        </div>
+      )
+    }
+    return tmpList
   }
   refreshGamesList = rooms => {
     let tmpList = []
@@ -334,7 +364,9 @@ class App extends Component {
   render() {
     const rooms = this.refreshGamesList(this.state.roomsData)
     const order = [this.state.room.ishost, this.state.room.ishost % 2]
-    
+    const onlineDudes = this.prepareOnlineDudes(this.state.onlineUsersList)
+    console.log('duur')
+    console.log(onlineDudes)
     return (
       <div className="App">
         <NavBar>
@@ -397,6 +429,7 @@ class App extends Component {
                   </div>
                   <aside className="col-2 border">
                     <div>playerlist - from ws (based on active sockets)</div>
+                    <div>{onlineDudes}</div>
                   </aside>
                 </section>
               : (this.state.substage === 'gameLobby')
@@ -421,11 +454,11 @@ class App extends Component {
                       <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>
                       
                     </div>
-                    <div className="prePositionView">
+                    <div className="prePositionView d-flex">
                       <div>put your pieces and get ready</div>
-                      <Board className="preBoard" drawObjects={0} cellSize={20}/>
+                      <Board className="preBoard" drawObjects={0} cellSize={20} notclickable={true}/>
                       <div className="prePosControl">
-                        LIST OF SHIPS, DRAGGABLE AND DROPPABLE TO THE BOARD
+                        <img src={ship2} alt="2x ship" draggable="true" ondragstart={ev=>{ev.dataTransfer.setData("text", ev.target.id)}} />
                       </div>
                     </div>
                     <ChatForm sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>

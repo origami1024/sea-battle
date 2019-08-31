@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>drag and drop</title>
+</head>
+<style type="text/css">
+	.field{
+		width: 160px;
+		height: 160px;
+		background: url(bg.png);
+		z-index: 1111;
+	}
+	#img1 {
+		position:absolute;
+		left: 0;
+		top: 0;
+		width: 20px;
+		height: 40px;
+		z-index: 1;
+	}
+	#img2 {
+		position: absolute;
+		left: 100px;
+		top: 0;
+		width: 20px;
+		height: 40px;
+		z-index: 2;
+	}
+	#shadow{
+		position: absolute;
+		width: 20px;
+		height: 40px;
+		background-color: rgba(0.5,0.4,0.5,0.2);
+		left: 80px;
+		top: 0px;
+		z-index: 999;
+		pointer-events: none;
+		border: 1px dotted red;
+	}
+	.fooCtrl{
+		float:top;
+	}
+	.footer{
+		position: fixed;
+		bottom:30px;
+		background-color: gray;
+		width: 100%;
+		height: 20%;
+	}
+	textarea{
+		width: 48%;
+		height: 100%;
+		resize: none;
+		font-size: 8px;
+	}
+	.ship1{
+		width: 20px;
+		height: 20px;
+		background-image: url(ship1.jpg);
+		background-size: 100% 100%;
+		position: absolute;
+		top: 0;
+	}
+	.ship2{
+		width: 40px;
+		height: 20px;
+		background-image: url(ship2.png);
+		background-size: 100% 100%;
+		position: absolute;
+		top: 0;
+	}
+	.ship3{
+		width: 60px;
+		height: 20px;
+		background-image: url(ship3.jpg);
+		background-size: 100% 100%;
+		position: absolute;
+		top: 0;
+	}
+	.ship4{
+		width: 80px;
+		height: 20px;
+		background-image: url(ship4.png);
+		background-size: 100% 100%;
+		position: absolute;
+		top: 0;
+	}
+</style>
+
+<!--
+	DESIGN DOC-----
+	todo:
+	0. rotate ships before placing, or during placing
+	1. initial list of ships to be placed, so when u drop one outside the field - it gets back to the place in the list
+	2. checked mark on the properly placed ships, unchecked on the ones in the list to be palced
+	3. hit spots list - another html file?
+
+-->
+<body class="factory" style="margin:0">
+	<div id="shadow"></div>
+	<div class="field" id="fie">
+		
+	</div>
+
+	<section class="footer">
+		<div class="fooCtrl">
+			<button id="cls">CLEAR BOTH1</button>
+		</div>
+		<textarea name="1" id="dragovers" cols="30" rows="10"></textarea>
+		<textarea name="1" id="drops" cols="30" rows="10"></textarea>
+	</section>
+	<script>
+		let ships = []
+		let dragData = {
+			'offsX': 0,
+			'offsY': 0
+		}
+		let filledMap = [Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split('')]
+		let cellSize = 20
+		let cellNumX = 1
+		let cellNumY = 2
+		var slides = document.getElementsByClassName("img")
+		let cou = 0
+		/*let freeSpots = []
+		for (var i = 1; i <= 10; i++) {
+			freeSpots.push({
+				y: i,
+				occupied: 0
+			})
+		}
+		*/
+		function populate(one,two,three,four) {
+			let params = [one,two,three,four]
+			let factory = document.getElementsByClassName("factory")[0]
+			let num = 0
+			for (let j = 0; j<params.length; j++) {
+				num = params[j]
+				for (let i = 0; i<num; i++) {
+					let div = document.createElement('div')
+					//div.innerHTML = `durr${j}`
+					div.classList.add(`ship${j+1}`)
+					div.id = `ship${(j+1)*(i+1)+Math.random(333)}`
+					div.setAttribute('draggable', true);
+					div.classList.add(`img`)
+					div.style.left = (3 + i) * 80 + 'px'
+					div.style.top = j * 20 + 'px'
+					factory.append(div)//(`<div></div>`)
+					ships.push({
+						id: div.id,
+						length: j + 1,
+						posx: (2 + i) * 4,
+						posy: j,
+						orientation: false,
+						status: 0, //not yet placed
+						occCells: []
+					})
+				}
+			}
+		}
+		populate(3,3,2,1)
+
+		function clearBoth(e) {
+			document.getElementById("dragovers").value = ''
+			document.getElementById('drops').value = ''
+		}
+		document.getElementById("cls").addEventListener("click", clearBoth)
+		
+		for(var i = 0; i < slides.length; i++)
+		{
+		   slides.item(i).addEventListener("dblclick", dblclik)
+		}
+		document.addEventListener("dragover", dragover)
+		//document.addEventListener("drag", drag)
+		document.addEventListener("drop", drop)
+
+		function dblclik(e) {
+			/*
+			if (e.target.style.width!='20px') {
+				e.target.style.width='20px'
+				e.target.style.height='40px'
+			} else {
+				e.target.style.width='40px'
+				e.target.style.height='20px'
+			}*/
+			for (let i = ships.length - 1; i >= 0; i--) {
+		  	if (ships[i].id==e.target.id) {
+		  		ships[i].orientation = !ships[i].orientation
+		  		if (ships[i].orientation) {
+		  			e.target.style.width = ships[i].length * 20 + 'px'	
+		  			e.target.style.height = 20 + 'px'
+		  		} else {
+		  			e.target.style.height = ships[i].length * 20 + 'px'	
+		  			e.target.style.width = 20 + 'px'
+		  		}
+		  		
+		  	}
+		  }
+		}
+		document.addEventListener("dragstart", drag)
+		let tmpele
+		function drag(ev) {
+			if((ev.target) && (ev.target.classList.contains('img'))) {
+				//alert('nig')
+				var rect = ev.target.getBoundingClientRect()
+				console.log(ev.target.id)
+				ev.dataTransfer.setData("text", ev.target.id)
+				ev.dataTransfer.setData("offsX", ev.clientX - rect.left)
+				ev.dataTransfer.setData("offsY", ev.clientY - rect.top)
+
+				dragData['offsX'] = ev.clientX - rect.left
+				dragData['offsY'] = ev.clientY - rect.top
+				//alert(ev.clientX - rect.left)
+				//alert(ev)
+				document.getElementById('shadow').style.display = 'block'
+
+
+				tmpele = ev.target
+
+			} else {alert('nonono')}
+			
+		}
+		function dragover(ev) {
+			event.preventDefault()
+			
+		  offsX = dragData['offsX']
+		  offsY = dragData['offsY']
+		  let finalX = (ev.clientX - offsX)
+		  let finalY = (ev.clientY - offsY)
+		  //document.getElementById(data).style.left = finalX + 'px'
+		  //document.getElementById(data).style.top = finalY + 'px'
+		  /*let floorerX = finalX%(cellSize*cellNumX)
+		  floorerX>((cellSize*cellNumX)/2) ? floorerX = - ((cellSize*cellNumX) - floorerX) : true
+		  let floorerY = finalY%(cellSize*cellNumY)
+		  floorerY>((cellSize*cellNumY)/2) ? floorerY = - ((cellSize*cellNumY) - floorerY) : true*/
+
+		  let floorerX = finalX%cellSize
+		  floorerX>(cellSize/2) ? floorerX = - (cellSize - floorerX) : true
+		  let floorerY = finalY%cellSize
+		  floorerY>(cellSize/2) ? floorerY = - (cellSize - floorerY) : true
+
+		  let gridX = (finalX - floorerX)
+		  let gridY = (finalY - floorerY)
+		  
+		  let coordsX = gridX/20
+		  let coordsY = gridY/20
+		  //var data = ev.dataTransfer.getData("text");
+		  var data = tmpele.id;
+		  //document.title = data
+		  //document.getElementById('drops').value = document.getElementById('drops').value + data;
+		  for (let i = ships.length - 1; i >= 0; i--) {
+		  	if (ships[i].id==data) {
+		  		if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
+		  			document.getElementById('shadow').style.border = '1px dotted lime'
+		  			//check for ship collision
+		  			//
+		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
+		  				if ((ships[ii].status == 1) && (ii != i)) {
+
+		  					//get the rect of iterated ship + borders
+		  					let tmpIX1 = ships[ii].posx
+		  					let tmpIX2 = ships[ii].posx + ships[ii].length
+		  					let tmpIY1 = ships[ii].posy - 1
+		  					let tmpIY2 = ships[ii].posy + 1
+
+		  					//get the rect of dragged
+		  					let tmpDrX1 = coordsX
+		  					let tmpDrX2 = coordsX + ships[i].length
+		  					let tmpDrY1 = coordsY
+		  					let tmpDrY2 = coordsY
+
+		  					//check the collision
+		  					if ((tmpIX1<=tmpDrX2) && (tmpDrX1<=tmpIX2) && (tmpIY1<=tmpDrY2) && (tmpDrY1<=tmpIY2)) {
+		  						//document.getElementById('drops').value = document.getElementById('drops').value + `COLLISION`
+		  						document.getElementById('shadow').style.border = '1px solid red'
+		  					}
+
+		  				}
+		  			}
+		  		}
+		  		else {
+		  			if ((coordsX>8) || (coordsY>8)) {
+		  				document.getElementById('shadow').style.border = '1px dotted green'
+		  			} else {
+		  				document.getElementById('shadow').style.border = '1px dotted red'	
+		  			}
+		  			
+		  		}
+		  	}
+		  }
+
+
+		  document.getElementById('shadow').style.left = gridX + 'px'
+		  document.getElementById('shadow').style.top = gridY + 'px'
+
+
+
+		  document.getElementById('shadow').style.width = window.getComputedStyle(tmpele).width
+		  document.getElementById('shadow').style.height = window.getComputedStyle(tmpele).height
+			
+		}
+
+		function drop(ev) {
+		  ev.preventDefault();
+		  //alert(ev.clientX)
+		  //cellsize is 20 for example
+		  var data = ev.dataTransfer.getData("text");
+		  //ev.target.appendChild(document.getElementById(data));
+		  var offsX = ev.dataTransfer.getData("offsX");
+		  var offsY = ev.dataTransfer.getData("offsY");
+		  offsX = dragData['offsX']
+		  offsY = dragData['offsY']
+		  var lastDOverX = ev.dataTransfer.getData("lastDOverX");
+		  var lastDOverY = ev.dataTransfer.getData("lastDOverY");
+
+
+
+		  let finalX = (ev.clientX - offsX)
+		  let finalY = (ev.clientY - offsY)
+		  //determine the closest grid rect
+		  let floorerX = finalX%cellSize
+		  floorerX>(cellSize/2) ? floorerX = - (cellSize - floorerX) : true
+		  let floorerY = finalY%cellSize
+		  floorerY>(cellSize/2) ? floorerY = - (cellSize - floorerY) : true
+		  let gridX = (finalX - floorerX)
+		  let gridY = (finalY - floorerY)
+		  
+		  //document.getElementById(data).style.left = gridX + 'px'
+		  //document.getElementById(data).style.top = gridY + 'px'
+		  
+
+		  //filling the map
+		  let coordsX = gridX/20
+		  let coordsY = gridY/20
+		  document.getElementById('drops').value = document.getElementById('drops').value + `[${data}] ${coordsX} : ${coordsY}\n`
+
+		  for (let i = ships.length - 1; i >= 0; i--) {
+		  	if (ships[i].id==data) {
+		  		
+		  		ships[i].posx = coordsX
+		  		ships[i].posy = coordsY
+		  		
+		  		//CHECK IF ITS IN THE BOUNDS
+		  		if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
+		  			//check collision with ships
+		  			let collide = false
+		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
+		  				if ((ships[ii].status == 1) && (ii != i)) {
+
+		  					//get the rect of iterated ship + borders
+		  					let tmpIX1 = ships[ii].posx
+		  					let tmpIX2 = ships[ii].posx + ships[ii].length
+		  					let tmpIY1 = ships[ii].posy - 1
+		  					let tmpIY2 = ships[ii].posy + 1
+
+		  					//get the rect of dragged
+		  					let tmpDrX1 = coordsX
+		  					let tmpDrX2 = coordsX + ships[i].length
+		  					let tmpDrY1 = coordsY
+		  					let tmpDrY2 = coordsY
+
+		  					//check the collision
+		  					if ((tmpIX1<=tmpDrX2) && (tmpDrX1<=tmpIX2) && (tmpIY1<=tmpDrY2) && (tmpDrY1<=tmpIY2)) {
+		  						
+		  						//document.getElementById('shadow').style.border = '1px solid red'
+		  						collide = true
+		  					}
+
+		  				}
+		  			}
+		  			if (collide==false) {
+		  				ships[i].status = 1	
+		  				document.getElementById(data).style.left = gridX + 'px'
+		  				document.getElementById(data).style.top = gridY + 'px'
+		  			}
+
+		  		}
+		  		else {
+		  			ships[i].status = 0
+		  			if ((coordsX>8) || (coordsY>8)) {
+		  				document.getElementById(data).style.left = gridX + 'px'
+		  				document.getElementById(data).style.top = gridY + 'px'
+		  			}
+		  		}
+		  		//CHECK IF OTHER SHIP IS ON THAT PLACE
+		  	}
+		  }
+		  //find the ship in the list of objects
+		  //change its pos
+
+
+		  document.getElementById('drops').value = document.getElementById('drops').value + `[DROV][${cou}] x:${offsX} y:${offsY}\n` + `[DROP][${cou}] x:${gridX} y:${gridY}\n`
+		  cou += 1
+
+		  document.getElementById('drops').scrollTop = document.getElementById('drops').scrollHeight
+
+		  document.getElementById('shadow').style.display = 'none'
+		}
+				
+	</script>
+</body>
+</html>
