@@ -5,6 +5,12 @@
 	<title>drag and drop</title>
 </head>
 <style type="text/css">
+	.shipPlaced:after{
+		content: 'ok';
+		font-size: 12px;
+		position: relative;
+		color: lime;
+	}
 	.field{
 		width: 160px;
 		height: 160px;
@@ -57,7 +63,7 @@
 	.ship1{
 		width: 20px;
 		height: 20px;
-		background-image: url(ship1.jpg);
+		background-image: url(ship1.png);
 		background-size: 100% 100%;
 		position: absolute;
 		top: 0;
@@ -73,7 +79,7 @@
 	.ship3{
 		width: 60px;
 		height: 20px;
-		background-image: url(ship3.jpg);
+		background-image: url(ship3.png);
 		background-size: 100% 100%;
 		position: absolute;
 		top: 0;
@@ -86,15 +92,30 @@
 		position: absolute;
 		top: 0;
 	}
+	.ship1Rotated{
+		background-image: url('./ship1Rotated.png');
+	}
+	.ship2Rotated{
+		background-image: url('./ship2Rotated.png');
+	}
+	.ship3Rotated{
+		background-image: url('./ship3Rotated.png');
+	}
+	.ship4Rotated{
+		background-image: url('./ship4Rotated.png');
+	}
 </style>
 
 <!--
 	DESIGN DOC-----
 	todo:
-	0. rotate ships before placing, or during placing
-	1. initial list of ships to be placed, so when u drop one outside the field - it gets back to the place in the list
-	2. checked mark on the properly placed ships, unchecked on the ones in the list to be palced
+	///1. initial(preset) list of ship positions, so when u drop one outside the field - it gets back to the place in the list
+	///0. rotate ships on click, after rotating check if colliding, if so then move the ship to preset position
+	//2. checked mark on the properly placed ships
+	//4. change ships pictures to transparent ones.
 	3. hit spots list - another html file?
+	4. on server before the game starts, fields should be checked for no hacks!
+	5. size of fields not 20x20 but variable, probably 40x40 base
 
 -->
 <body class="factory" style="margin:0">
@@ -122,14 +143,7 @@
 		let cellNumY = 2
 		var slides = document.getElementsByClassName("img")
 		let cou = 0
-		/*let freeSpots = []
-		for (var i = 1; i <= 10; i++) {
-			freeSpots.push({
-				y: i,
-				occupied: 0
-			})
-		}
-		*/
+
 		function populate(one,two,three,four) {
 			let params = [one,two,three,four]
 			let factory = document.getElementsByClassName("factory")[0]
@@ -142,6 +156,7 @@
 					div.classList.add(`ship${j+1}`)
 					div.id = `ship${(j+1)*(i+1)+Math.random(333)}`
 					div.setAttribute('draggable', true);
+					div.title=`posx: ${(2 + i) * 4}, posy: ${j}, status: 0`
 					div.classList.add(`img`)
 					div.style.left = (3 + i) * 80 + 'px'
 					div.style.top = j * 20 + 'px'
@@ -151,6 +166,8 @@
 						length: j + 1,
 						posx: (2 + i) * 4,
 						posy: j,
+						initPosx: (3 + i) * 4,
+						initPosy: j,
 						orientation: false,
 						status: 0, //not yet placed
 						occCells: []
@@ -168,32 +185,48 @@
 		
 		for(var i = 0; i < slides.length; i++)
 		{
-		   slides.item(i).addEventListener("dblclick", dblclik)
+		   slides.item(i).addEventListener("click", dblclik)
 		}
 		document.addEventListener("dragover", dragover)
 		//document.addEventListener("drag", drag)
 		document.addEventListener("drop", drop)
-
 		function dblclik(e) {
-			/*
-			if (e.target.style.width!='20px') {
-				e.target.style.width='20px'
-				e.target.style.height='40px'
-			} else {
-				e.target.style.width='40px'
-				e.target.style.height='20px'
-			}*/
 			for (let i = ships.length - 1; i >= 0; i--) {
 		  	if (ships[i].id==e.target.id) {
 		  		ships[i].orientation = !ships[i].orientation
 		  		if (ships[i].orientation) {
+					e.target.classList.add(`ship${ships[i].length}Rotated`)
+					e.target.style.height = ships[i].length * 20 + 'px'	
+		  			e.target.style.width = 20 + 'px'
+		  		} else {
 		  			e.target.style.width = ships[i].length * 20 + 'px'	
 		  			e.target.style.height = 20 + 'px'
-		  		} else {
-		  			e.target.style.height = ships[i].length * 20 + 'px'	
-		  			e.target.style.width = 20 + 'px'
+					e.target.classList.remove(`ship${ships[i].length}Rotated`)
 		  		}
-		  		
+
+		  		//here check on collision and crossing the borders
+				let coordsX = ships[i].posx
+				let coordsY = ships[i].posy
+				let dump = false
+				if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
+					console.log('inside the borders - ok!')
+					
+					for (let ii = ships.length - 1; ii >= 0; ii--) {
+		  				if ((ships[ii].status == 1) && (ii != i)) {
+							dump = dump || shipPlacementCollisionCheck(ships[i], ships[ii])
+		  				}
+		  			}
+				} else {
+					dump = true
+					//is not inside the borders
+				}
+				if (dump == true) {
+					ships[i].posx = ships[i].initPosx
+					ships[i].posy = ships[i].initPosy
+					e.target.style.left = ships[i].posx * 20 + 'px'
+					e.target.style.top = ships[i].posy * 20 + 'px'
+					e.target.classList.remove('shipPlaced')
+				}
 		  	}
 		  }
 		}
@@ -250,33 +283,25 @@
 		  //document.getElementById('drops').value = document.getElementById('drops').value + data;
 		  for (let i = ships.length - 1; i >= 0; i--) {
 		  	if (ships[i].id==data) {
-		  		if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
+		  		//if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
+				if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
 		  			document.getElementById('shadow').style.border = '1px dotted lime'
 		  			//check for ship collision
 		  			//
+					let collide = false
 		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
 		  				if ((ships[ii].status == 1) && (ii != i)) {
-
-		  					//get the rect of iterated ship + borders
-		  					let tmpIX1 = ships[ii].posx
-		  					let tmpIX2 = ships[ii].posx + ships[ii].length
-		  					let tmpIY1 = ships[ii].posy - 1
-		  					let tmpIY2 = ships[ii].posy + 1
-
-		  					//get the rect of dragged
-		  					let tmpDrX1 = coordsX
-		  					let tmpDrX2 = coordsX + ships[i].length
-		  					let tmpDrY1 = coordsY
-		  					let tmpDrY2 = coordsY
-
-		  					//check the collision
-		  					if ((tmpIX1<=tmpDrX2) && (tmpDrX1<=tmpIX2) && (tmpIY1<=tmpDrY2) && (tmpDrY1<=tmpIY2)) {
-		  						//document.getElementById('drops').value = document.getElementById('drops').value + `COLLISION`
-		  						document.getElementById('shadow').style.border = '1px solid red'
-		  					}
-
+							collide = collide || shipPlacementCollisionCheck({
+								posx: coordsX,
+								posy: coordsY,
+								length: ships[i].length,
+								orientation: ships[i].orientation
+							}, ships[ii])
 		  				}
 		  			}
+					if (collide) {
+						document.getElementById('shadow').style.border = '1px solid red'
+					}
 		  		}
 		  		else {
 		  			if ((coordsX>8) || (coordsY>8)) {
@@ -292,9 +317,6 @@
 
 		  document.getElementById('shadow').style.left = gridX + 'px'
 		  document.getElementById('shadow').style.top = gridY + 'px'
-
-
-
 		  document.getElementById('shadow').style.width = window.getComputedStyle(tmpele).width
 		  document.getElementById('shadow').style.height = window.getComputedStyle(tmpele).height
 			
@@ -312,8 +334,6 @@
 		  offsY = dragData['offsY']
 		  var lastDOverX = ev.dataTransfer.getData("lastDOverX");
 		  var lastDOverY = ev.dataTransfer.getData("lastDOverY");
-
-
 
 		  let finalX = (ev.clientX - offsX)
 		  let finalY = (ev.clientY - offsY)
@@ -336,50 +356,42 @@
 
 		  for (let i = ships.length - 1; i >= 0; i--) {
 		  	if (ships[i].id==data) {
-		  		
-		  		ships[i].posx = coordsX
-		  		ships[i].posy = coordsY
-		  		
 		  		//CHECK IF ITS IN THE BOUNDS
-		  		if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
+		  		if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
 		  			//check collision with ships
 		  			let collide = false
+					console.log('DROP!')
 		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
 		  				if ((ships[ii].status == 1) && (ii != i)) {
-
-		  					//get the rect of iterated ship + borders
-		  					let tmpIX1 = ships[ii].posx
-		  					let tmpIX2 = ships[ii].posx + ships[ii].length
-		  					let tmpIY1 = ships[ii].posy - 1
-		  					let tmpIY2 = ships[ii].posy + 1
-
-		  					//get the rect of dragged
-		  					let tmpDrX1 = coordsX
-		  					let tmpDrX2 = coordsX + ships[i].length
-		  					let tmpDrY1 = coordsY
-		  					let tmpDrY2 = coordsY
-
-		  					//check the collision
-		  					if ((tmpIX1<=tmpDrX2) && (tmpDrX1<=tmpIX2) && (tmpIY1<=tmpDrY2) && (tmpDrY1<=tmpIY2)) {
-		  						
-		  						//document.getElementById('shadow').style.border = '1px solid red'
-		  						collide = true
-		  					}
-
+							collide = collide || shipPlacementCollisionCheck({
+								posx: coordsX,
+								posy: coordsY,
+								length: ships[i].length,
+								orientation: ships[i].orientation
+							}, ships[ii])
 		  				}
 		  			}
 		  			if (collide==false) {
-		  				ships[i].status = 1	
-		  				document.getElementById(data).style.left = gridX + 'px'
-		  				document.getElementById(data).style.top = gridY + 'px'
+		  				ships[i].status = 1
+						ships[i].posx = coordsX
+		  				ships[i].posy = coordsY
+						document.getElementById(data).style.left = (ships[i].posx *20) + 'px'
+						document.getElementById(data).style.top = (ships[i].posy * 20) + 'px'
+						document.getElementById(data).title=`posx: ${ships[i].posx}, posy: ${ships[i].posy}, status: ${ships[i].status}`
+						document.getElementById(data).classList.add('shipPlaced')
 		  			}
 
 		  		}
 		  		else {
-		  			ships[i].status = 0
 		  			if ((coordsX>8) || (coordsY>8)) {
+						ships[i].status = 0
 		  				document.getElementById(data).style.left = gridX + 'px'
-		  				document.getElementById(data).style.top = gridY + 'px'
+						document.getElementById(data).style.top = gridY + 'px'
+						//animate the movement from where it landed to the preset position
+						//.left = ships[i].initPosx*20+80 + 'px'
+						//.top = ships[i].initPosy*20 + 'px'
+						document.getElementById(data).classList.remove('shipPlaced')
+						document.getElementById(data).title=`posx: ${ships[i].posx}, posy: ${ships[i].posy}, status: 0`
 		  			}
 		  		}
 		  		//CHECK IF OTHER SHIP IS ON THAT PLACE
@@ -397,6 +409,35 @@
 		  document.getElementById('shadow').style.display = 'none'
 		}
 				
+
+		//utility functions
+		function shipPlacementCollisionCheck(dragged, placed) {
+			//dragged and placed are both ships from the array
+			//first lay out the points to check
+			let draggedShip = {}
+			draggedShip.Xstart = dragged.posx
+			draggedShip.Ystart = dragged.posy
+			draggedShip.Xend = dragged.orientation ? dragged.posx : dragged.posx + dragged.length - 1
+			draggedShip.Yend = dragged.orientation ? dragged.posy + dragged.length - 1 : dragged.posy
+			//console.log('dragged:', draggedShip)
+			let placedShip = {}
+			placedShip.Xstart = placed.posx
+			placedShip.Ystart = placed.posy
+			placedShip.Xend = placed.orientation ? placed.posx : placed.posx + placed.length - 1
+			placedShip.Yend = placed.orientation ? placed.posy + placed.length - 1 : placed.posy
+			//console.log('placed:', placedShip)
+			let placedSpace = {
+				Xstart: placedShip.Xstart - 1,
+				Ystart: placedShip.Ystart - 1,
+				Xend: placedShip.Xend + 1,
+				Yend: placedShip.Yend + 1,
+			}
+			//console.log('pSpace:', placedSpace)
+			return ((draggedShip.Xstart<=placedSpace.Xend) && 
+				(draggedShip.Xend>=placedSpace.Xstart) &&
+				(draggedShip.Ystart<=placedSpace.Yend) &&
+				(draggedShip.Yend>=placedSpace.Ystart))
+		}
 	</script>
 </body>
 </html>
