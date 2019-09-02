@@ -1,3 +1,8 @@
+## to start the server:
+go to src/ and do
+### `node server.js`
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

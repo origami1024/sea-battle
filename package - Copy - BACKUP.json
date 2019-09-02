@@ -18,12 +18,8 @@
     "ws": "^6.2.0"
   },
   "scripts": {
-    "build-css": "stylus -c src/ --out src/",
-    "watch-css": "npm run build-css && stylus -c -w src/ --out src",
-    "start-js": "react-scripts start",
-    "start": "npm-run-all -p watch-css start-js",
-    "build-js": "react-scripts build",
-    "build": "npm-run-all build-css build-js",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
