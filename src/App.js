@@ -71,7 +71,8 @@ class App extends Component {
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
     //ref={node=>this.tim=node} onTickExternal={c=>{this.addRoomMsg('*', c + ' sec to start')}} on0={e=>{this.changeSubStage('battle')}}/>
 
-    this.ws = new WebSocket('ws://localhost:12345')
+    //this.ws = new WebSocket('ws://localhost:12345')
+    this.ws = new WebSocket(`ws://${window.location.hostname}:12345`)
     this.ws.onmessage = e => {
       let data = {}
       try {
@@ -229,6 +230,7 @@ class App extends Component {
     //e.preventDefault()
     //this.addRoomMsg('you', this.state.tmpRoomMsg)
     this.addRoomMsg('you', val)
+    console.log('1')
     this.ws.send(JSON.stringify({cmd: 'lmg', msg: val}))
     //this.setState({tmpRoomMsg: ''})
   }
@@ -425,7 +427,7 @@ class App extends Component {
                         {rooms}
                       </div>
                     </div>
-                    <ChatForm title="local chat" sendRoomMsg={val=>{alert(val)}} newLog={'fix this later'}/>
+                    <ChatForm title="Global chat" sendRoomMsg={val=>{alert(val)}} newLog={'fix this later'}/>
                   </div>
                   <aside className="col-2 border">
                     <div>playerlist - from ws (based on active sockets)</div>

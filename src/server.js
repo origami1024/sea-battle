@@ -25,7 +25,27 @@ const cmds = {
       inRoom: -1
     }
     clog('user with id ' + userCounter + ' logd')
+    ////checkin on socket status, if user is on or not
+    //here start a timer that will check on socket life
+    //on user deletion - need to check rooms and battles he is in
     users[userCounter] = user
+    let socketChecker = (userCounter) =>{
+        setTimeout(()=>{
+          clog('Checking on:' + userCounter)
+          if (users[userCounter]) clog('readyState:' + users[userCounter].socket.readyState)
+          
+          if ((users[userCounter]) && (users[userCounter].socket.readyState === 3)) {
+            users[userCounter].socket.close()
+            delete users[userCounter]
+            clog('socket is closed - user has been deleted:' + userCounter)
+          } else socketChecker(userCounter)
+          
+        },5000)
+    }
+    socketChecker(userCounter)
+    //more than 5 sec
+    //what do we do on checking?
+    //////PINGING END
     userCounter += 1
     try {
       socket.send('{"cmd": "lok"}')//login ok = lok
@@ -34,11 +54,9 @@ const cmds = {
     }
   },
   prt: () => {
-    clog('prt, users.length: ')
-    clog(Object.keys(users).length)
+    clog('prt, users.length: ' + Object.keys(users).length)
     clog(Object.keys(users).join(','))
-    clog('prt, rooms.length: ')
-    clog(Object.keys(rooms).length)
+    clog('prt, rooms.length: ' + Object.keys(rooms).length)
     clog(Object.keys(rooms).join(','))
     clog('prt, all userIDs: ')
     for (x in users) {
@@ -51,8 +69,11 @@ const cmds = {
     clog('before: ' + Object.keys(users).length)
     for (usr in users) {
       if (users[usr].socket === socket) {
+        //socket.close()
+        //is the socket completely done after that? is this a memory leak?
         delete users[usr]
-        clog('bingo!')
+        clog('bingo! user found by its socket and then deleted')
+        //HAVE TO DELETE ITS SOCKET SEPARATELY???
       }
     }
     
@@ -342,8 +363,10 @@ const cmds = {
 ///2. you got kicked by host
 ///3. receive local chat message
 ///4. other player in room got rdy
-///5. turn results each turn
-///6. ping request when battle is going on
+///5. turn results each turn - when both players do the turn, send back to both
+
+///6. ping request to see if socket dropped??? on timer?
+
 
 clog('Server started')
 clog('--------------')
@@ -359,6 +382,7 @@ server.on("connection", socket => {
       cmd = JSON.parse(data)
     } catch (e) {
       //ignore
+      clog('error parsing data')
     }
     if (cmd.cmd in cmds) {
       let usrID = -1

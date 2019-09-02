@@ -2,6 +2,14 @@
 go to src/ and do
 ### `node server.js`
 
+## TODO:
+1. login with cookies, generate sessions and store/check with postgres db
+2. integrate the prebattle ship placement
+3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
+4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
+5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
+6. give the dropped some time to come back
+7. globalchat - if not in a room - u get sent the global msgs
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

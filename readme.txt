@@ -3,8 +3,8 @@ react
 bootstrap
 websockets//ws
 posgresql
-canvas
-scss
+canvas - needed?
+stylus
 
 
 animations
