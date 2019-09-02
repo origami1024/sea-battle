@@ -5,6 +5,9 @@
 	<title>drag and drop</title>
 </head>
 <style type="text/css">
+	:root {
+		--cellSize: 40px; 
+	}
 	.shipPlaced:after{
 		content: 'ok';
 		font-size: 12px;
@@ -12,37 +15,23 @@
 		color: lime;
 	}
 	.field{
-		width: 160px;
-		height: 160px;
+		width: 320px;
+		height: 320px;
 		background: url(bg.png);
+		background-size: 100%;
 		z-index: 1111;
-	}
-	#img1 {
-		position:absolute;
-		left: 0;
-		top: 0;
-		width: 20px;
-		height: 40px;
-		z-index: 1;
-	}
-	#img2 {
-		position: absolute;
-		left: 100px;
-		top: 0;
-		width: 20px;
-		height: 40px;
-		z-index: 2;
 	}
 	#shadow{
 		position: absolute;
-		width: 20px;
-		height: 40px;
+		width: var(--cellSize);
+		height: calc(var(--cellSize) * 2);
 		background-color: rgba(0.5,0.4,0.5,0.2);
-		left: 80px;
+		left: calc(var(--cellSize) * 4);;
 		top: 0px;
 		z-index: 999;
 		pointer-events: none;
 		border: 1px dotted red;
+		display: none;
 	}
 	.fooCtrl{
 		float:top;
@@ -61,36 +50,25 @@
 		font-size: 8px;
 	}
 	.ship1{
-		width: 20px;
-		height: 20px;
+		width: var(--cellSize);
 		background-image: url(ship1.png);
-		background-size: 100% 100%;
-		position: absolute;
-		top: 0;
 	}
 	.ship2{
-		width: 40px;
-		height: 20px;
+		width: calc(var(--cellSize) * 2);
 		background-image: url(ship2.png);
-		background-size: 100% 100%;
-		position: absolute;
-		top: 0;
 	}
 	.ship3{
-		width: 60px;
-		height: 20px;
+		width: calc(var(--cellSize) * 3);
 		background-image: url(ship3.png);
-		background-size: 100% 100%;
-		position: absolute;
-		top: 0;
 	}
 	.ship4{
-		width: 80px;
-		height: 20px;
+		width: calc(var(--cellSize) * 4);
 		background-image: url(ship4.png);
+	}
+	.img{
 		background-size: 100% 100%;
 		position: absolute;
-		top: 0;
+		height: var(--cellSize);
 	}
 	.ship1Rotated{
 		background-image: url('./ship1Rotated.png');
@@ -115,7 +93,7 @@
 	//4. change ships pictures to transparent ones.
 	3. hit spots list - another html file?
 	4. on server before the game starts, fields should be checked for no hacks!
-	5. size of fields not 20x20 but variable, probably 40x40 base
+	//5. size of fields not 20x20 but variable, probably 40x40 base
 
 -->
 <body class="factory" style="margin:0">
@@ -137,29 +115,24 @@
 			'offsX': 0,
 			'offsY': 0
 		}
-		let filledMap = [Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split('')]
-		let cellSize = 20
-		let cellNumX = 1
-		let cellNumY = 2
+		//let filledMap = [Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split('')]
+		let cellSize = 40
 		var slides = document.getElementsByClassName("img")
 		let cou = 0
 
 		function populate(one,two,three,four) {
 			let params = [one,two,three,four]
 			let factory = document.getElementsByClassName("factory")[0]
-			let num = 0
 			for (let j = 0; j<params.length; j++) {
-				num = params[j]
-				for (let i = 0; i<num; i++) {
+				for (let i = 0; i<params[j]; i++) {
 					let div = document.createElement('div')
-					//div.innerHTML = `durr${j}`
 					div.classList.add(`ship${j+1}`)
 					div.id = `ship${(j+1)*(i+1)+Math.random(333)}`
 					div.setAttribute('draggable', true);
 					div.title=`posx: ${(2 + i) * 4}, posy: ${j}, status: 0`
 					div.classList.add(`img`)
-					div.style.left = (3 + i) * 80 + 'px'
-					div.style.top = j * 20 + 'px'
+					div.style.left = (3 + i) * (cellSize * 4) + 'px'
+					div.style.top = j * cellSize + 'px'
 					factory.append(div)//(`<div></div>`)
 					ships.push({
 						id: div.id,
@@ -196,11 +169,11 @@
 		  		ships[i].orientation = !ships[i].orientation
 		  		if (ships[i].orientation) {
 					e.target.classList.add(`ship${ships[i].length}Rotated`)
-					e.target.style.height = ships[i].length * 20 + 'px'	
-		  			e.target.style.width = 20 + 'px'
+					e.target.style.height = ships[i].length * cellSize + 'px'	
+		  			e.target.style.width = cellSize + 'px'
 		  		} else {
-		  			e.target.style.width = ships[i].length * 20 + 'px'	
-		  			e.target.style.height = 20 + 'px'
+		  			e.target.style.width = ships[i].length * cellSize + 'px'	
+		  			e.target.style.height = cellSize + 'px'
 					e.target.classList.remove(`ship${ships[i].length}Rotated`)
 		  		}
 
@@ -223,8 +196,8 @@
 				if (dump == true) {
 					ships[i].posx = ships[i].initPosx
 					ships[i].posy = ships[i].initPosy
-					e.target.style.left = ships[i].posx * 20 + 'px'
-					e.target.style.top = ships[i].posy * 20 + 'px'
+					e.target.style.left = ships[i].posx * cellSize + 'px'
+					e.target.style.top = ships[i].posy * cellSize + 'px'
 					e.target.classList.remove('shipPlaced')
 				}
 		  	}
@@ -275,8 +248,8 @@
 		  let gridX = (finalX - floorerX)
 		  let gridY = (finalY - floorerY)
 		  
-		  let coordsX = gridX/20
-		  let coordsY = gridY/20
+		  let coordsX = gridX/cellSize
+		  let coordsY = gridY/cellSize
 		  //var data = ev.dataTransfer.getData("text");
 		  var data = tmpele.id;
 		  //document.title = data
@@ -350,8 +323,8 @@
 		  
 
 		  //filling the map
-		  let coordsX = gridX/20
-		  let coordsY = gridY/20
+		  let coordsX = gridX/cellSize
+		  let coordsY = gridY/cellSize
 		  document.getElementById('drops').value = document.getElementById('drops').value + `[${data}] ${coordsX} : ${coordsY}\n`
 
 		  for (let i = ships.length - 1; i >= 0; i--) {
@@ -360,7 +333,6 @@
 		  		if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
 		  			//check collision with ships
 		  			let collide = false
-					console.log('DROP!')
 		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
 		  				if ((ships[ii].status == 1) && (ii != i)) {
 							collide = collide || shipPlacementCollisionCheck({
@@ -375,8 +347,8 @@
 		  				ships[i].status = 1
 						ships[i].posx = coordsX
 		  				ships[i].posy = coordsY
-						document.getElementById(data).style.left = (ships[i].posx *20) + 'px'
-						document.getElementById(data).style.top = (ships[i].posy * 20) + 'px'
+						document.getElementById(data).style.left = (ships[i].posx *cellSize) + 'px'
+						document.getElementById(data).style.top = (ships[i].posy * cellSize) + 'px'
 						document.getElementById(data).title=`posx: ${ships[i].posx}, posy: ${ships[i].posy}, status: ${ships[i].status}`
 						document.getElementById(data).classList.add('shipPlaced')
 		  			}
