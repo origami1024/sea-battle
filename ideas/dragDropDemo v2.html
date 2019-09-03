@@ -26,7 +26,7 @@
 		width: var(--cellSize);
 		height: calc(var(--cellSize) * 2);
 		background-color: rgba(0.5,0.4,0.5,0.2);
-		left: calc(var(--cellSize) * 4);;
+		left: calc(var(--cellSize) * 4);
 		top: 0px;
 		z-index: 999;
 		pointer-events: none;
@@ -117,10 +117,11 @@
 		}
 		//let filledMap = [Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split(''),Array(9).join(0).split('')]
 		let cellSize = 40
-		var slides = document.getElementsByClassName("img")
+		
 		let cou = 0
 
 		function populate(one,two,three,four) {
+			//first delete all the existing ships, if exist
 			let params = [one,two,three,four]
 			let factory = document.getElementsByClassName("factory")[0]
 			for (let j = 0; j<params.length; j++) {
@@ -134,6 +135,7 @@
 					div.style.left = (3 + i) * (cellSize * 4) + 'px'
 					div.style.top = j * cellSize + 'px'
 					factory.append(div)//(`<div></div>`)
+					div.addEventListener("click", dblclik)
 					ships.push({
 						id: div.id,
 						length: j + 1,
@@ -156,10 +158,12 @@
 		}
 		document.getElementById("cls").addEventListener("click", clearBoth)
 		
+		/*var slides = document.getElementsByClassName("img")
 		for(var i = 0; i < slides.length; i++)
 		{
 		   slides.item(i).addEventListener("click", dblclik)
-		}
+		}*/
+		//04 09 2019 start from here
 		document.addEventListener("dragover", dragover)
 		//document.addEventListener("drag", drag)
 		document.addEventListener("drop", drop)

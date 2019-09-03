@@ -1,10 +1,72 @@
 .partWrapper
-    border: 1px dashed orange
+    border 1px dashed orange
+    padding 5px
 .partWrapper h3
-    font-size: 20px
-    margin: 0
+    font-size 20px
+    margin 0
 .boardAndPlacer
     display: flex
+    position relative
+    padding 0
+    outline 1px dashed orangered
 .shipFactory
-    border: 1px dashed red
+    border 1px dashed red
+    
 
+
+//from dragDropDemo v2
+//change these vars from js on mount or on render!
+:root
+    --cellSize 30px
+.preBoard
+    z-index 1111
+    //may be needed to go into the board - onto the canvas component
+
+.shipPlaced:after
+    content 'ok'
+    font-size 12px
+    position relative
+    color lime
+.shadow
+    position absolute
+    width var(--cellSize)
+    height calc(var(--cellSize) * 2)
+    background-color rgba(0.5,0.4,0.5,0.2)
+    left calc(var(--cellSize) * 4)
+    top 0
+    z-index 999
+    pointer-events none
+    border 1px dotted red
+    //display none
+.ship1
+    width var(--cellSize)
+    background-image url('ship1.png')
+
+.ship2
+    width calc(var(--cellSize) * 2)
+    background-image url('ship2.png')
+
+.ship3
+    width calc(var(--cellSize) * 3)
+    background-image url('ship3.png')
+
+.ship4
+    width calc(var(--cellSize) * 4)
+    background-image url('ship4.png')
+
+.img
+    background-size 100% 100%
+    position absolute
+    height var(--cellSize)
+
+.ship1Rotated
+    background-image: url('./ship1Rotated.png')
+    
+.ship2Rotated
+    background-image: url('./ship2Rotated.png')
+
+.ship3Rotated
+    background-image: url('./ship3Rotated.png')
+
+.ship4Rotated
+    background-image: url('./ship4Rotated.png')

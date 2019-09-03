@@ -6,8 +6,6 @@ import NavBar from './NavBar'
 import ProfileControl from './ProfileControl'
 import ChatForm from './ChatForm'
 
-import ship2 from './smapl2x.png';
-
 
 class StartTimer {
   constructor(props) {
@@ -460,7 +458,7 @@ class App extends Component {
                       </div>
                     </div>
                     
-                    <PiecePositioningPart />
+                    <PiecePositioningPart params={[3,3,2,1]} cellSize={30} />
                     <ChatForm sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
                   </section>
                 : <div>something else</div>

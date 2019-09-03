@@ -22,7 +22,6 @@ export default class Board extends Component {
     this.state = {
       w: 8,
       h: 8,
-      cellSize: this.props.cellSize,
       ships: [
         {
           size: 4,
@@ -83,18 +82,18 @@ export default class Board extends Component {
     if (!this.props.notclickable) {
       let localX = e.pageX - e.target.offsetLeft
       let localY = e.pageY - e.target.offsetTop
-      let cellX = ~~(localX / this.state.cellSize)
-      let cellY = ~~(localY / this.state.cellSize)
+      let cellX = ~~(localX / this.props.cellSize)
+      let cellY = ~~(localY / this.props.cellSize)
       this.setState({selectedCell: [cellX, cellY]})
     }
     
   }
   drawShips = e => {
     if (this.img){
-      this.drawBoard(this.state.w, this.state.h, this.state.cellSize, this.state.ctx, 0, 0, this.props.color, this.state.selectedCell)
+      this.drawBoard(this.state.w, this.state.h, this.props.cellSize, this.state.ctx, 0, 0, this.props.color, this.state.selectedCell)
       if (this.props.drawObjects) {
         this.state.ships.forEach( obj =>
-          this.state.ctx.drawImage(this.img, obj.x*this.state.cellSize, obj.y*this.state.cellSize, this.state.cellSize + this.state.cellSize*(obj.size*obj.ori), this.state.cellSize + this.state.cellSize*(obj.size*(1 - obj.ori)))
+          this.state.ctx.drawImage(this.img, obj.x*this.props.cellSize, obj.y*this.props.cellSize, this.props.cellSize + this.props.cellSize*(obj.size*obj.ori), this.props.cellSize + this.props.cellSize*(obj.size*(1 - obj.ori)))
         )
       }
     }
@@ -117,7 +116,7 @@ export default class Board extends Component {
   render() {
     console.log('board rendered')
     return(
-      <canvas ref="canvas" width={(this.state.w+1)*this.state.cellSize} height={(this.state.h+1)*this.state.cellSize} onClick={this.onClick} />
+      <canvas ref="canvas" width={(this.state.w+1)*this.props.cellSize} height={(this.state.h+1)*this.props.cellSize} onClick={this.onClick} />
     )
   }
 }
