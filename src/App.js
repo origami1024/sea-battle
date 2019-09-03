@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Board from './Board'
+import PiecePositioningPart from './PiecePositioningPart'
 import NavBar from './NavBar'
 import ProfileControl from './ProfileControl'
 import ChatForm from './ChatForm'
@@ -104,6 +105,7 @@ class App extends Component {
             })
             this.changeSubStage('gameLobby')
             console.log('cp87')
+            console.log(this.state.stage)
           }
         } else
         if (data.cmd === 'ler') {
@@ -437,32 +439,28 @@ class App extends Component {
               : (this.state.substage === 'gameLobby')
                 ? <section className="main container">
                     <div className="">Room <strong>{this.state.room.roomName}</strong> : {this.state.room.roomID}</div>
-                    <div className="d-flex flex-column">
-                      <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[0]}}>
-                        <span style={{width:"20%"}} className="py-1">{this.state.user.name}</span>
-                        <span style={{width:"20%"}} className="py-1">red</span>
-                        <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
+                    <div className="d-flex">
+                      <div className="d-flex flex-column">
+                        <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[0]}}>
+                          <span style={{width:"20%"}} className="py-1">{this.state.user.name}</span>
+                          <span style={{width:"20%"}} className="py-1">red</span>
+                          <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
+                        </div>
+                        <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[1]}}>
+                          <span style={{width:"20%"}} className="py-1">{this.state.room.opponentName}</span>
+                          <span style={{width:"20%"}} className="py-1">green</span>
+                          <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
+                        </div>
                       </div>
-                      <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[1]}}>
-                        <span style={{width:"20%"}} className="py-1">{this.state.room.opponentName}</span>
-                        <span style={{width:"20%"}} className="py-1">green</span>
-                        <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
-                      </div>
-                    </div>
-                    <div className="mt-2">
-                      <button onClick={this.leaveRoom}>leave the room</button>
-                      <button onClick={this.toggleReady}>ready toggle</button>
-                      <button onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
-                      <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>
-                      
-                    </div>
-                    <div className="prePositionView d-flex">
-                      <div>put your pieces and get ready</div>
-                      <Board className="preBoard" drawObjects={0} cellSize={20} notclickable={true}/>
-                      <div className="prePosControl">
-                        <img src={ship2} alt="2x ship" draggable="true" ondragstart={ev=>{ev.dataTransfer.setData("text", ev.target.id)}} />
+                      <div>
+                        <button onClick={this.leaveRoom}>leave the room</button>
+                        <button onClick={this.toggleReady}>ready toggle</button>
+                        <button onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
+                        <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                       </div>
                     </div>
+                    
+                    <PiecePositioningPart />
                     <ChatForm sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
                   </section>
                 : <div>something else</div>
