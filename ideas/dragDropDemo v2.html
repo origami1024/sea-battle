@@ -324,19 +324,19 @@
 		  			}
 		  			if (collide==false) {
 		  				ships[i].status = 1
-						ships[i].posx = coordsX
+							ships[i].posx = coordsX
 		  				ships[i].posy = coordsY
-						document.getElementById(data).style.left = (ships[i].posx *cellSize) + 'px'
-						document.getElementById(data).style.top = (ships[i].posy * cellSize) + 'px'
-						document.getElementById(data).title=`posx: ${ships[i].posx}, posy: ${ships[i].posy}, status: ${ships[i].status}`
-						document.getElementById(data).classList.add('shipPlaced')
+							document.getElementById(data).style.left = (ships[i].posx *cellSize) + 'px'
+							document.getElementById(data).style.top = (ships[i].posy * cellSize) + 'px'
+							document.getElementById(data).title=`posx: ${ships[i].posx}, posy: ${ships[i].posy}, status: ${ships[i].status}`
+							document.getElementById(data).classList.add('shipPlaced')
 		  			}
 
 		  		}
 		  		else {
 		  			if ((coordsX>8) || (coordsY>8)) {
 						ships[i].status = 0
-		  				document.getElementById(data).style.left = gridX + 'px'
+		  			document.getElementById(data).style.left = gridX + 'px'
 						document.getElementById(data).style.top = gridY + 'px'
 						//animate the movement from where it landed to the preset position
 						//.left = ships[i].initPosx*20+80 + 'px'

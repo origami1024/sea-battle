@@ -212,9 +212,14 @@ export default class PiecePositioningPart extends Component {
         let dump = false
         if ((coordsX+(propperOri ? 0 : l - 1)<8) && (coordsX>=0) && (coordsY+(propperOri ? l - 1 : 0)<8) && (coordsY>=0)) {
           //inside the board
-          for (let ii = l - 1; ii >= 0; ii--) {
+          for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
 						if ((this.state.ships[ii].status === 1) && (ii !== i)) {
-							dump = dump || this.shipPlacementCollisionCheck(this.state.ships[i], this.state.ships[ii])
+							dump = dump || this.shipPlacementCollisionCheck({
+                posx: coordsX,
+								posy: coordsY,
+								length: l,
+								orientation: propperOri
+              }, this.state.ships[ii])
 						}
 		  		}
         } else {
