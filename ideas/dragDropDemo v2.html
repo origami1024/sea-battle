@@ -49,6 +49,13 @@
 		resize: none;
 		font-size: 8px;
 	}
+	.img{
+		background-size: 100% 100%;
+		position: absolute;
+		height: var(--cellSize);
+		width: var(--cellSize);
+	}
+
 	.ship1{
 		width: var(--cellSize);
 		background-image: url(ship1.png);
@@ -65,21 +72,21 @@
 		width: calc(var(--cellSize) * 4);
 		background-image: url(ship4.png);
 	}
-	.img{
-		background-size: 100% 100%;
-		position: absolute;
-		height: var(--cellSize);
-	}
+	
 	.ship1Rotated{
+		height: var(--cellSize);
 		background-image: url('./ship1Rotated.png');
 	}
 	.ship2Rotated{
+		height: calc(var(--cellSize) * 2);
 		background-image: url('./ship2Rotated.png');
 	}
 	.ship3Rotated{
+		height: calc(var(--cellSize) * 3);
 		background-image: url('./ship3Rotated.png');
 	}
 	.ship4Rotated{
+		height: calc(var(--cellSize) * 4);
 		background-image: url('./ship4Rotated.png');
 	}
 </style>
@@ -162,32 +169,26 @@
 		document.addEventListener("dragover", dragover)
 		//document.addEventListener("drag", drag)
 		document.addEventListener("drop", drop)
+
 		function dblclik(e) {
 			for (let i = ships.length - 1; i >= 0; i--) {
 		  	if (ships[i].id==e.target.id) {
-		  		ships[i].orientation = !ships[i].orientation
-		  		if (ships[i].orientation) {
-					e.target.classList.add(`ship${ships[i].length}Rotated`)
-					e.target.style.height = ships[i].length * cellSize + 'px'	
-		  			e.target.style.width = cellSize + 'px'
-		  		} else {
-		  			e.target.style.width = ships[i].length * cellSize + 'px'	
-		  			e.target.style.height = cellSize + 'px'
-					e.target.classList.remove(`ship${ships[i].length}Rotated`)
-		  		}
+					ships[i].orientation = !ships[i].orientation
+					e.target.classList.toggle(`ship${ships[i].length}`)
+					e.target.classList.toggle(`ship${ships[i].length}Rotated`)
 
 		  		//here check on collision and crossing the borders
-				let coordsX = ships[i].posx
-				let coordsY = ships[i].posy
-				let dump = false
+					let coordsX = ships[i].posx
+					let coordsY = ships[i].posy
+					let dump = false
 				if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
 					console.log('inside the borders - ok!')
 					
 					for (let ii = ships.length - 1; ii >= 0; ii--) {
-		  				if ((ships[ii].status == 1) && (ii != i)) {
+						if ((ships[ii].status == 1) && (ii != i)) {
 							dump = dump || shipPlacementCollisionCheck(ships[i], ships[ii])
-		  				}
-		  			}
+						}
+		  		}
 				} else {
 					dump = true
 					//is not inside the borders
@@ -208,30 +209,23 @@
 			if((ev.target) && (ev.target.classList.contains('img'))) {
 				//alert('nig')
 				var rect = ev.target.getBoundingClientRect()
-				console.log(ev.target.id)
-				ev.dataTransfer.setData("text", ev.target.id)
-				ev.dataTransfer.setData("offsX", ev.clientX - rect.left)
-				ev.dataTransfer.setData("offsY", ev.clientY - rect.top)
-
 				dragData['offsX'] = ev.clientX - rect.left
 				dragData['offsY'] = ev.clientY - rect.top
-				//alert(ev.clientX - rect.left)
-				//alert(ev)
-				document.getElementById('shadow').style.display = 'block'
 
+				document.getElementById('shadow').style.display = 'block'
 
 				tmpele = ev.target
 
 			} else {alert('nonono')}
 			
 		}
+
 		function dragover(ev) {
-			event.preventDefault()
+			ev.preventDefault()
 			
-		  offsX = dragData['offsX']
-		  offsY = dragData['offsY']
-		  let finalX = (ev.clientX - offsX)
-		  let finalY = (ev.clientY - offsY)
+
+		  let finalX = (ev.clientX - dragData['offsX'])
+		  let finalY = (ev.clientY - dragData['offsY'])
 		  //document.getElementById(data).style.left = finalX + 'px'
 		  //document.getElementById(data).style.top = finalY + 'px'
 		  /*let floorerX = finalX%(cellSize*cellNumX)
@@ -249,31 +243,30 @@
 		  
 		  let coordsX = gridX/cellSize
 		  let coordsY = gridY/cellSize
-		  //var data = ev.dataTransfer.getData("text");
 		  var data = tmpele.id;
 		  //document.title = data
 		  //document.getElementById('drops').value = document.getElementById('drops').value + data;
 		  for (let i = ships.length - 1; i >= 0; i--) {
 		  	if (ships[i].id==data) {
 		  		//if ((coordsX+ships[i].length<9) && (coordsX>=0) && (coordsY<8) && (coordsY>=0)) {
-				if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
-		  			document.getElementById('shadow').style.border = '1px dotted lime'
-		  			//check for ship collision
-		  			//
-					let collide = false
-		  			for (let ii = ships.length - 1; ii >= 0; ii--) {
-		  				if ((ships[ii].status == 1) && (ii != i)) {
+					if ((coordsX+(ships[i].orientation ? 0 : ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(ships[i].orientation ? ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
+							document.getElementById('shadow').style.border = '1px dotted lime'
+							//check for ship collision
+							//
+						let collide = false
+						for (let ii = ships.length - 1; ii >= 0; ii--) {
+							if ((ships[ii].status == 1) && (ii != i)) {
 							collide = collide || shipPlacementCollisionCheck({
 								posx: coordsX,
 								posy: coordsY,
 								length: ships[i].length,
 								orientation: ships[i].orientation
 							}, ships[ii])
-		  				}
-		  			}
-					if (collide) {
-						document.getElementById('shadow').style.border = '1px solid red'
-					}
+							}
+						}
+						if (collide) {
+							document.getElementById('shadow').style.border = '1px solid red'
+						}
 		  		}
 		  		else {
 		  			if ((coordsX>8) || (coordsY>8)) {
@@ -296,19 +289,10 @@
 
 		function drop(ev) {
 		  ev.preventDefault();
-		  //alert(ev.clientX)
-		  //cellsize is 20 for example
-		  var data = ev.dataTransfer.getData("text");
-		  //ev.target.appendChild(document.getElementById(data));
-		  var offsX = ev.dataTransfer.getData("offsX");
-		  var offsY = ev.dataTransfer.getData("offsY");
-		  offsX = dragData['offsX']
-		  offsY = dragData['offsY']
-		  var lastDOverX = ev.dataTransfer.getData("lastDOverX");
-		  var lastDOverY = ev.dataTransfer.getData("lastDOverY");
+		  var data = tmpele.id
 
-		  let finalX = (ev.clientX - offsX)
-		  let finalY = (ev.clientY - offsY)
+		  let finalX = (ev.clientX - dragData['offsX'])
+		  let finalY = (ev.clientY - dragData['offsY'])
 		  //determine the closest grid rect
 		  let floorerX = finalX%cellSize
 		  floorerX>(cellSize/2) ? floorerX = - (cellSize - floorerX) : true
@@ -316,10 +300,6 @@
 		  floorerY>(cellSize/2) ? floorerY = - (cellSize - floorerY) : true
 		  let gridX = (finalX - floorerX)
 		  let gridY = (finalY - floorerY)
-		  
-		  //document.getElementById(data).style.left = gridX + 'px'
-		  //document.getElementById(data).style.top = gridY + 'px'
-		  
 
 		  //filling the map
 		  let coordsX = gridX/cellSize
@@ -372,7 +352,7 @@
 		  //change its pos
 
 
-		  document.getElementById('drops').value = document.getElementById('drops').value + `[DROV][${cou}] x:${offsX} y:${offsY}\n` + `[DROP][${cou}] x:${gridX} y:${gridY}\n`
+		  document.getElementById('drops').value = document.getElementById('drops').value + `[DROP][${cou}] x:${gridX} y:${gridY}\n`
 		  cou += 1
 
 		  document.getElementById('drops').scrollTop = document.getElementById('drops').scrollHeight

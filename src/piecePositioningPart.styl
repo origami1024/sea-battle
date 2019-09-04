@@ -27,6 +27,7 @@
     font-size 12px
     position relative
     color lime
+
 .shadow
     position absolute
     width var(--cellSize)
@@ -38,35 +39,42 @@
     pointer-events none
     border 1px dotted red
     //display none
+
+.img
+    position absolute
+    background-size (100% 100%)
+    height var(--cellSize)
+    width var(--cellSize)
+    text-align left
+
 .ship1
     width var(--cellSize)
-    background-image url('ship1.png')
+    background-image url('./ship1.png')
 
 .ship2
     width calc(var(--cellSize) * 2)
-    background-image url('ship2.png')
+    background-image url('./ship2.png')
 
 .ship3
     width calc(var(--cellSize) * 3)
-    background-image url('ship3.png')
+    background-image url('./ship3.png')
 
 .ship4
     width calc(var(--cellSize) * 4)
-    background-image url('ship4.png')
-
-.img
-    background-size 100% 100%
-    position absolute
-    height var(--cellSize)
+    background-image url('./ship4.png')
 
 .ship1Rotated
+    height var(--cellSize)
     background-image: url('./ship1Rotated.png')
     
 .ship2Rotated
+    height calc(var(--cellSize) * 2)
     background-image: url('./ship2Rotated.png')
 
 .ship3Rotated
+    height calc(var(--cellSize) * 3)
     background-image: url('./ship3Rotated.png')
 
 .ship4Rotated
+    height calc(var(--cellSize) * 4)
     background-image: url('./ship4Rotated.png')

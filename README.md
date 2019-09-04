@@ -1,15 +1,20 @@
-## to start the server:
-go to src/ and do
-### `node server.js`
+##This is purely test project, very big waste of time
+##technologies: nodejs, websockets, react, bootstrap, stylus
 
 ## TODO:
 1. login with cookies, generate sessions and store/check with postgres db
-2. integrate the prebattle ship placement
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
 7. globalchat - if not in a room - u get sent the global msgs
+8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now components are moved separately!!!
+9. in the preBattlePlacing. Way to check from above the component, that all ships are placed and data is ready to be sent to server. So that ready button can be unlocked somewhere in the app.
+
+
+## to start the server:
+go to src/ and do
+### `node server.js`
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

@@ -114,7 +114,7 @@ export default class Board extends Component {
     this.drawShips()
   }
   render() {
-    console.log('board rendered')
+    //console.log('board rendered')
     return(
       <canvas ref="canvas" width={(this.state.w+1)*this.props.cellSize} height={(this.state.h+1)*this.props.cellSize} onClick={this.onClick} />
     )

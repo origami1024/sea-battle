@@ -367,8 +367,6 @@ class App extends Component {
     const rooms = this.refreshGamesList(this.state.roomsData)
     const order = [this.state.room.ishost, this.state.room.ishost % 2]
     const onlineDudes = this.prepareOnlineDudes(this.state.onlineUsersList)
-    console.log('duur')
-    console.log(onlineDudes)
     return (
       <div className="App">
         <NavBar>
