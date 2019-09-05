@@ -11,6 +11,9 @@
 8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now elements are moved externally through js!!!
 10. change readyToggle button to checkbox, fix design there
 11. make the readyToggle send data to server, and to the other room participant if there is one
+12. player stats, like win/lose; levels
+13. player info
+14. add scrolling and maxHeight to the gameslist and to the playerlist in app
 
 ## to start the server:
 go to src/ and do

@@ -10,8 +10,8 @@ const server = new webSoc.Server({
 })
 let users = {}
 let rooms = {
-  1: {gName: 'small game', open: -1, host: 'hoster1', hostID: 888, opponentName: '--empty--'},
-  2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo'}
+  1: {gName: 'small game', open: -1, host: 'hoster1', hostID: 888, opponentName: '--empty--', hostRdy: false, openRdy: false, hostShips: [], openShips: []},
+  2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo', hostRdy: false, openRdy: false, hostShips: [], openShips: []}
 }
 let matches = {}
 let userCounter = 1
@@ -103,7 +103,11 @@ const cmds = {
           open: -1,
           host: cmd.host,
           hostID: usrID,
-          opponentName: '--empty--'
+          opponentName: '--empty--',
+          hostRdy: false,
+          openRdy: false,
+          hostShips: [],
+          openShips: []
         }
         users[usrID].inRoom = roomCounter
         try{
@@ -338,9 +342,14 @@ const cmds = {
       
     }
   },
-  rdy: (socket, usrID) => {
+  rdy: (socket, cmd, usrID) => {
     //player in room is rdy
-    //skip it for now
+    //clog(JSON.stringify(cmd.ships))
+    
+    //put ships in room data
+    //set this players rdy property in the room
+    //notify other player
+
   },
   trn: (socket, cmd) => {
     //receive turn data

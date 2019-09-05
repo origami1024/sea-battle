@@ -66,7 +66,9 @@ class App extends Component {
         //own field, enemy field
       },
       //ready button in prebattle
-      readyLock: true
+      readyLock: true,
+      readyBox: false,
+      ships: []
     }
 
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
@@ -249,8 +251,26 @@ class App extends Component {
       alert('you are not host')
     }
   }
-  setReady = (ready) => {
-    this.setState({readyLock: ready})
+  setReady = (ready, ships) => {
+    this.setState({readyLock: ready, ships,})
+    console.log('on ready this.state.ships.length', this.state.ships.length)
+  }
+  toggleReady = () => {
+    //first of all make a limit to get ready/unready only once per 5 second in the client
+    if ((this.state.stage === 'logged') && (this.state.substage === 'gameLobby')) {
+      //maybe add more dependencies, like if in the room etc, though all that needed to be duplicate checked on server
+      console.log('TROLOLO')
+      console.log(JSON.stringify(this.state.ships))
+      //console.log(this.state.ships)
+      //alert(this.state.readyBox)
+      
+      this.ws.send(JSON.stringify({
+        cmd: 'rdy',
+        ships: this.state.ships,
+        ready: !this.state.readyBox
+      }))
+      this.setState({readyBox: !this.state.readyBox})
+    }
   }
   doLogin = (uName, uPW) => {
     this.ws.send(JSON.stringify({cmd: 'lgn', name: uName, pw: uPW}))
@@ -333,9 +353,9 @@ class App extends Component {
     let tmpList = [] 
     for (let key in list) {
       tmpList.push(
-        <div key={key}>
-          <a href={"#" + list[key].uID }>{list[key].uName}</a>
-        </div>
+        <li key={key} className="list-group-item list-group-item-action" style={{padding: '3px 0'}}>
+          <a href={"userinfo?user=" + list[key].uID } target={'_blanc'}>{list[key].uName}</a>
+        </li>
       )
     }
     return tmpList
@@ -347,6 +367,7 @@ class App extends Component {
         <div key={room} style={{width:"100%", display:'flex', padding: '3px 0', cursor: 'pointer'}} className={ this.state.rDActiveIndex === room ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action" } onClick={e=>{this.clickRoomList(room)}} onDoubleClick={this.queryjoinRoom}>
           <span style={{width:"30%"}} className="py-0">{rooms[room].gName}</span>
           <span style={{width:"20%"}} className="py-0">{rooms[room].host}</span>
+          {/*<span style={{width:"20%"}} className="py-0"><a href={"userinfo?user=" + rooms[room].hostID } target={'_blanc'} style={{width:"20%", color: 'black'}}>{rooms[room].host}</a></span>*/}
           <span style={{width:"20%"}} className="py-0">
           {
             rooms[room].open === -1
@@ -401,7 +422,7 @@ class App extends Component {
                 <button onClick={e=>{this.setState({battle: {chatLog: this.state.battle.chatLog + '\ntrolo'}})}}>testChatF</button>
               </section>
             : (this.state.substage === '') //general lobby
-              ? <section className="main container d-flex">
+              ? <section className="main container d-flex p-0">
                   <div className="mainMain col-10">
                     <div className="roomsControl d-flex py-2">
                       <button onClick={this.queryGLRefresh}>Refresh roomlist</button>
@@ -421,20 +442,18 @@ class App extends Component {
                       <div className="gamesListHeader list-group-item bg-dark text-white py-0" style={{width:"100%", display:'flex'}}>
                         <span style={{width:"30%"}} className="py-1">game name</span>
                         <span style={{width:"20%"}} className="py-1">host</span>
-                        <span style={{width:"20%"}} className="py-1">open?</span>
-                        <span style={{width:"20%"}} className="py-1">
-                          ?
-                        </span>
+                        <span style={{width:"20%"}} className="py-1">players</span>
+                        <span style={{width:"20%"}} className="py-1">modes</span>
                       </div>
                       <div className="gamesListView">
                         {rooms}
                       </div>
                     </div>
-                    <ChatForm title="Global chat" sendRoomMsg={val=>{alert(val)}} newLog={'fix this later'}/>
+                    <ChatForm title="Global chat" sendRoomMsg={val=>{alert(val)}} newLog={'fix this later'} style={{marginTop: 'auto'}}/>
                   </div>
-                  <aside className="col-2 border">
-                    <div>playerlist - from ws (based on active sockets)</div>
-                    <div>{onlineDudes}</div>
+                  <aside className="col-2 m-0 p-0 h-auto bg-dark rounded" style={{maxHeight: "80vh", overflow: "hidden"}}>
+                    <h3 className="small gamesListHeader list-group-item bg-dark text-white p-1">playerlist - from ws (based on active sockets) : nn</h3>
+                    <ul className="list-group">{onlineDudes}</ul>
                   </aside>
                 </section>
               : (this.state.substage === 'gameLobby')
@@ -455,7 +474,10 @@ class App extends Component {
                       </div>
                       <div>
                         <button onClick={this.leaveRoom}>leave the room</button>
-                        <button onClick={this.toggleReady} disabled={this.state.readyLock}>ready toggle</button>
+                        
+                        <input onClick={this.toggleReady} disabled={this.state.readyLock} type="checkbox" id="gameLobby__readyCB" value={this.state.readyBox}/>
+                        <label htmlFor="gameLobby__readyCB">ready</label>
+                        {/*<button onClick={this.toggleReady} disabled={this.state.readyLock}>ready toggle</button>*/}
                         <button onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
                         <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                       </div>

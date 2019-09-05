@@ -3,7 +3,12 @@ import Board from './Board'
 import './piecePositioningPart.css';
 
 
+/* 
+ideas:
+  1. random place all ships feature
+  2. races, like: pirates - 5x1 ships; normal; orcs - 3 ships 3x3
 
+*/
 export default class PiecePositioningPart extends Component {
   constructor(props) {
     super(props)
@@ -29,6 +34,33 @@ export default class PiecePositioningPart extends Component {
   componentDidMount() {
     this.prepareShips(this.props.params)
   }
+
+
+  randomPlacement = () => {
+    alert('this doesnt work yet')
+    /* does not fuken work :( 
+    const tmpShips = this.state.ships
+
+    this.setState({ships: tmpShips})
+
+    for (let i = 0; i < tmpShips.length; i++) {
+      const theShip = tmpShips[i];
+      document.getElementById(theShip.id).style.left = theShip.posx * this.props.cellSize + 'px'
+      document.getElementById(theShip.id).style.top = theShip.posx * this.props.cellSize + 'px'
+      document.getElementById(theShip.id).classList.add('shipPlaced')
+      if (theShip.orientation === 1) {
+        document.getElementById(theShip.id).classList.add(`ship${theShip.length}Rotated`)
+        document.getElementById(theShip.id).classList.remove(`ship${theShip.length}`)
+      }
+      else {
+        document.getElementById(theShip.id).classList.remove(`ship${theShip.length}Rotated`)
+        document.getElementById(theShip.id).classList.add(`ship${theShip.length}`)
+      }
+    }
+    this.readyUpdate()
+    */
+  }
+
   drag = function (ev) {
     if((ev.target) && (ev.target.classList.contains('img'))) {
       var rect = ev.target.getBoundingClientRect()
@@ -203,7 +235,8 @@ export default class PiecePositioningPart extends Component {
     return  ready
   }
   readyUpdate = () => {
-    this.props.onReadyChange(!this.checkAllShipsPlacementReadyness())
+    //console.log(JSON.stringify(this.state.ships))
+    this.props.onReadyChange(!this.checkAllShipsPlacementReadyness(), this.state.ships)
   }
   rotateShip = (target) => {
     for (let i = this.state.ships.length - 1; i >= 0; i--) {
@@ -258,7 +291,7 @@ export default class PiecePositioningPart extends Component {
     params.forEach((quantity, j) => {
       //console.log('AAA', i)
       for (let i = 0; i < quantity; i++) {
-        const tmpId = `ship${(j+1)*(i+1)+Math.random(333)}`
+        const tmpId = `ship${(j+1)}_${(i+1)}_${Math.floor(Math.random()*3333)}`
         listItems.push(
           <div key={tmpKey} className={`ship${j+1} img`} id={tmpId} draggable="true" style={{left: (3 + i) * (this.props.cellSize * 4) + 'px', top: j * this.props.cellSize + 'px'}} onClick={e=>{this.rotateShip(e.target)}}>
           </div>
@@ -285,9 +318,8 @@ export default class PiecePositioningPart extends Component {
       //Board is going to basically be a background drawing in all this? even hover effects have to be on top of ships in this?
       <div className="partWrapper">
         <h3>Place your ships onto the board</h3>
-        <button onClick={this.readyUpdate}>temporary btn - change ready state</button>
+        <button onClick={this.randomPlacement}>Random!</button>
         <div className="boardAndPlacer container" onDragStart={ev=>{this.drag(ev)}} onDragOver={ev=>{this.dragOver(ev)}} onDrop={ev=>{this.drop(ev)}}>
-          
           <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={false}/>
           {this.state.shipElements}
           <div className="shadow" style={this.state.shadowStyle}>
