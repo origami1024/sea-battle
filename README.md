@@ -8,9 +8,9 @@
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
 7. globalchat - if not in a room - u get sent the global msgs
-8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now components are moved separately!!!
-9. in the preBattlePlacing. Way to check from above the component, that all ships are placed and data is ready to be sent to server. So that ready button can be unlocked somewhere in the app.
-
+8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now elements are moved externally through js!!!
+10. change readyToggle button to checkbox, fix design there
+11. make the readyToggle send data to server, and to the other room participant if there is one
 
 ## to start the server:
 go to src/ and do

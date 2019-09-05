@@ -64,7 +64,9 @@ class App extends Component {
         opponentName: '--empty--',
         chatLog: ''
         //own field, enemy field
-      }
+      },
+      //ready button in prebattle
+      readyLock: true
     }
 
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
@@ -246,6 +248,9 @@ class App extends Component {
     } else {
       alert('you are not host')
     }
+  }
+  setReady = (ready) => {
+    this.setState({readyLock: ready})
   }
   doLogin = (uName, uPW) => {
     this.ws.send(JSON.stringify({cmd: 'lgn', name: uName, pw: uPW}))
@@ -450,13 +455,13 @@ class App extends Component {
                       </div>
                       <div>
                         <button onClick={this.leaveRoom}>leave the room</button>
-                        <button onClick={this.toggleReady}>ready toggle</button>
+                        <button onClick={this.toggleReady} disabled={this.state.readyLock}>ready toggle</button>
                         <button onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
                         <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                       </div>
                     </div>
                     
-                    <PiecePositioningPart params={[3,3,2,1]} cellSize={30} />
+                    <PiecePositioningPart params={[3,3,2,1]} cellSize={30} onReadyChange={this.setReady}/>
                     <ChatForm sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
                   </section>
                 : <div>something else</div>

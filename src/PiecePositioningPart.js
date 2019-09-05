@@ -85,10 +85,8 @@ export default class PiecePositioningPart extends Component {
         } else {
           if ((coordsX>8) || (coordsY>8)) {
             shadowRestyling['border'] = '1px dotted green'
-            //this.setState({shadowBorder: '1px dotted green'})
           } else {
             shadowRestyling['border'] = '1px dotted red'
-            //this.setState({shadowBorder: '1px dotted red'})
           }
         }
       }
@@ -161,6 +159,8 @@ export default class PiecePositioningPart extends Component {
     const shadowRestyling = {}
     shadowRestyling['display'] = 'none'
     this.setState({shadowStyle: shadowRestyling})
+
+    this.readyUpdate()
   }
 
   shipPlacementCollisionCheck = function (dragged, placed) {
@@ -190,8 +190,20 @@ export default class PiecePositioningPart extends Component {
       (draggedShip.Ystart<=placedSpace.Yend) &&
       (draggedShip.Yend>=placedSpace.Ystart))
   }
-  cellSizeTmp = (e) => {
-    //delete this testing function later
+  //do this on ship drop
+  checkAllShipsPlacementReadyness = () => {
+    //check status of each ship
+    let ready = true
+    for (let index = 0; index < this.state.ships.length; index++) {
+      if (this.state.ships[index].status === 0) {
+        ready = false
+        break
+      }
+    }
+    return  ready
+  }
+  readyUpdate = () => {
+    this.props.onReadyChange(!this.checkAllShipsPlacementReadyness())
   }
   rotateShip = (target) => {
     for (let i = this.state.ships.length - 1; i >= 0; i--) {
@@ -273,7 +285,7 @@ export default class PiecePositioningPart extends Component {
       //Board is going to basically be a background drawing in all this? even hover effects have to be on top of ships in this?
       <div className="partWrapper">
         <h3>Place your ships onto the board</h3>
-        <button onClick={this.cellSizeTmp}>change cellsize to 50</button>
+        <button onClick={this.readyUpdate}>temporary btn - change ready state</button>
         <div className="boardAndPlacer container" onDragStart={ev=>{this.drag(ev)}} onDragOver={ev=>{this.dragOver(ev)}} onDrop={ev=>{this.drop(ev)}}>
           
           <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={false}/>
