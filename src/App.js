@@ -478,7 +478,7 @@ class App extends Component {
                     <ul className="list-group">{onlineDudes}</ul>
                   </aside>
                 </section>
-              : (this.state.substage === 'gameLobby')
+              : (this.state.substage === 'gameLobby') //prebattle / room lobby prestart
                 ? <section className="main container">
                     <div className="">Room <strong>{this.state.room.roomName}</strong> : {this.state.room.roomID}</div>
                     <div className="d-flex">

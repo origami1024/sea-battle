@@ -1,6 +1,6 @@
 .partWrapper
     border 1px dashed orange
-    padding 5px
+    padding 0
 .partWrapper h3
     font-size 20px
     margin 0
@@ -9,6 +9,9 @@
     position relative
     padding 0
     outline 1px dashed orangered
+    z-index 1200
+    user-select none
+
 .shipFactory
     border 1px dashed red
     
@@ -38,7 +41,7 @@
     z-index 999
     pointer-events none
     border 1px dotted red
-    //display none
+    display none
 
 .img
     position absolute
@@ -46,6 +49,7 @@
     height var(--cellSize)
     width var(--cellSize)
     text-align left
+    z-index 888
 
 .ship1
     width var(--cellSize)

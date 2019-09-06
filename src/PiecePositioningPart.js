@@ -28,6 +28,7 @@ export default class PiecePositioningPart extends Component {
         left: 0,
         width: this.props.cellSize,
         height: this.props.cellSize,
+        display: 'none'
       }
     }
   }
@@ -62,137 +63,149 @@ export default class PiecePositioningPart extends Component {
   }
 
   drag = function (ev) {
+    console.log('URFO')
+    console.log(ev.target)
     if((ev.target) && (ev.target.classList.contains('img'))) {
+      console.log('inside')
       var rect = ev.target.getBoundingClientRect()
       let dragData = {
         'offsX': ev.clientX - rect.left,
         'offsY': ev.clientY - rect.top
       }
+      //document.getElementsByClassName('shadow')[0].style.display = 'block'
+      //console.log(document.getElementsByClassName('shadow')[0].style.display)
+      //let tmpShadowStyle = {...this.state.shadowStyle, display: 'block'}
       this.setState({
         dragData,
-        tmpele: ev.target
+        tmpele: ev.target//,
+        //shadowStyle: {display: tmpShadowStyle}
       })
-    }
+    } else ev.preventDefault()
   }
   dragOver = function(ev) {
     ev.preventDefault()
+    //console.log(ev.target)
+    if (this.state.tmpele !== undefined) {
+      let finalX = (ev.clientX - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().left - this.state.dragData['offsX'])
+      let finalY = (ev.clientY - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().top - this.state.dragData['offsY'])
 
-    let finalX = (ev.clientX - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().left - this.state.dragData['offsX'])
-    let finalY = (ev.clientY - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().top - this.state.dragData['offsY'])
+      let floorerX = finalX % this.props.cellSize
+      if (floorerX > (this.props.cellSize / 2)) floorerX = - (this.props.cellSize - floorerX)
+      let floorerY = finalY % this.props.cellSize
+      if (floorerY > (this.props.cellSize / 2)) floorerY = - (this.props.cellSize - floorerY)
 
-    let floorerX = finalX % this.props.cellSize
-    if (floorerX > (this.props.cellSize / 2)) floorerX = - (this.props.cellSize - floorerX)
-    let floorerY = finalY % this.props.cellSize
-    if (floorerY > (this.props.cellSize / 2)) floorerY = - (this.props.cellSize - floorerY)
+      let gridX = (finalX - floorerX)
+      let gridY = (finalY - floorerY)
+      let coordsX = gridX / this.props.cellSize
+      let coordsY = gridY / this.props.cellSize
+      
+      let theShip = this.state.tmpele.id
+      
+      const shadowRestyling = {display: 'block'}
 
-    let gridX = (finalX - floorerX)
-    let gridY = (finalY - floorerY)
-    let coordsX = gridX / this.props.cellSize
-    let coordsY = gridY / this.props.cellSize
-    
-    let theShip = this.state.tmpele.id
-    
-    const shadowRestyling = {}
-
-    for (let i = this.state.ships.length - 1; i >= 0; i--) {
-      if (this.state.ships[i].id===theShip) {
-        if ((coordsX+(this.state.ships[i].orientation ? 0 : this.state.ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(this.state.ships[i].orientation ? this.state.ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
-          shadowRestyling['border'] = '1px dotted lime'
-          //console.log('noice')
-          let collide = false
-          for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
-            if ((this.state.ships[ii].status === 1) && (ii !== i)) {
-              collide = collide || this.shipPlacementCollisionCheck({
-                posx: coordsX,
-								posy: coordsY,
-								length: this.state.ships[i].length,
-								orientation: this.state.ships[i].orientation
-              }, this.state.ships[ii])
+      for (let i = this.state.ships.length - 1; i >= 0; i--) {
+        if (this.state.ships[i].id===theShip) {
+          if ((coordsX+(this.state.ships[i].orientation ? 0 : this.state.ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(this.state.ships[i].orientation ? this.state.ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
+            shadowRestyling['border'] = '1px dotted lime'
+            //console.log('noice')
+            let collide = false
+            for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
+              if ((this.state.ships[ii].status === 1) && (ii !== i)) {
+                collide = collide || this.shipPlacementCollisionCheck({
+                  posx: coordsX,
+                  posy: coordsY,
+                  length: this.state.ships[i].length,
+                  orientation: this.state.ships[i].orientation
+                }, this.state.ships[ii])
+              }
             }
-          }
-          if (collide) {
-            shadowRestyling['border'] = '1px dotted red'
-            //this.setState({shadowBorder: '1px dotted red'})
-          }
-        } else {
-          if ((coordsX>8) || (coordsY>8)) {
-            shadowRestyling['border'] = '1px dotted green'
+            if (collide) {
+              shadowRestyling['border'] = '1px dotted red'
+              //this.setState({shadowBorder: '1px dotted red'})
+            }
           } else {
-            shadowRestyling['border'] = '1px dotted red'
+            if ((coordsX>8) || (coordsY>8)) {
+              shadowRestyling['border'] = '1px dotted green'
+            } else {
+              shadowRestyling['border'] = '1px dotted red'
+            }
           }
         }
       }
-    }
 
-    shadowRestyling['left'] = gridX + 'px'
-    shadowRestyling['top'] = gridY + 'px'
-    shadowRestyling['width'] = window.getComputedStyle(this.state.tmpele).width
-    shadowRestyling['height'] = window.getComputedStyle(this.state.tmpele).height
-    this.setState({shadowStyle: shadowRestyling})
+      shadowRestyling['left'] = gridX + 'px'
+      shadowRestyling['top'] = gridY + 'px'
+      shadowRestyling['width'] = window.getComputedStyle(this.state.tmpele).width
+      shadowRestyling['height'] = window.getComputedStyle(this.state.tmpele).height
+      this.setState({shadowStyle: shadowRestyling})
+    }
+    
   }
   drop = function (ev) {
     ev.preventDefault()
+    //console.log(ev.target)
+    if (this.state.tmpele !== undefined) {
+      let finalX = (ev.clientX - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().left - this.state.dragData['offsX'])
+      let finalY = (ev.clientY - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().top - this.state.dragData['offsY'])
 
-    let finalX = (ev.clientX - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().left - this.state.dragData['offsX'])
-    let finalY = (ev.clientY - document.getElementsByClassName('boardAndPlacer')[0].getBoundingClientRect().top - this.state.dragData['offsY'])
+      let floorerX = finalX % this.props.cellSize
+      if (floorerX > (this.props.cellSize / 2)) floorerX = - (this.props.cellSize - floorerX)
+      let floorerY = finalY % this.props.cellSize
+      if (floorerY > (this.props.cellSize / 2)) floorerY = - (this.props.cellSize - floorerY)
 
-    let floorerX = finalX % this.props.cellSize
-    if (floorerX > (this.props.cellSize / 2)) floorerX = - (this.props.cellSize - floorerX)
-    let floorerY = finalY % this.props.cellSize
-    if (floorerY > (this.props.cellSize / 2)) floorerY = - (this.props.cellSize - floorerY)
+      let gridX = (finalX - floorerX)
+      let gridY = (finalY - floorerY)
+      let coordsX = gridX / this.props.cellSize
+      let coordsY = gridY / this.props.cellSize
 
-    let gridX = (finalX - floorerX)
-    let gridY = (finalY - floorerY)
-    let coordsX = gridX / this.props.cellSize
-    let coordsY = gridY / this.props.cellSize
-
-    let theShip = this.state.tmpele.id
-    for (let i = this.state.ships.length - 1; i >= 0; i--) {
-      if (this.state.ships[i].id===theShip) {
-        if ((coordsX+(this.state.ships[i].orientation ? 0 : this.state.ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(this.state.ships[i].orientation ? this.state.ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
-          let collide = false
-          for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
-            if ((this.state.ships[ii].status === 1) && (ii !== i)) {
-              collide = collide || this.shipPlacementCollisionCheck({
-								posx: coordsX,
-								posy: coordsY,
-								length: this.state.ships[i].length,
-								orientation: this.state.ships[i].orientation
-							}, this.state.ships[ii])
+      let theShip = this.state.tmpele.id
+      for (let i = this.state.ships.length - 1; i >= 0; i--) {
+        if (this.state.ships[i].id===theShip) {
+          if ((coordsX+(this.state.ships[i].orientation ? 0 : this.state.ships[i].length - 1)<8) && (coordsX>=0) && (coordsY+(this.state.ships[i].orientation ? this.state.ships[i].length - 1 : 0)<8) && (coordsY>=0)) {
+            let collide = false
+            for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
+              if ((this.state.ships[ii].status === 1) && (ii !== i)) {
+                collide = collide || this.shipPlacementCollisionCheck({
+                  posx: coordsX,
+                  posy: coordsY,
+                  length: this.state.ships[i].length,
+                  orientation: this.state.ships[i].orientation
+                }, this.state.ships[ii])
+              }
             }
-          }
-          if (!collide) {
-            const tmpShips = this.state.ships
-            tmpShips[i].status = 1
-            tmpShips[i].posx = coordsX
-            tmpShips[i].posy = coordsY
-            this.setState({ships: tmpShips})
-            /*
-              here I am changing style of the potentially dynamically 
-              rendered div again! Watch me bro
-            */
-           document.getElementById(theShip).style.left = (coordsX * this.state.cellSize) + 'px'
-           document.getElementById(theShip).style.top = (coordsY * this.state.cellSize) + 'px'
-           document.getElementById(theShip).classList.add('shipPlaced')
-          }
-        } else {
-          if ((coordsX>8) || (coordsY>8)) {
-            const tmpShips = this.state.ships
-            tmpShips[i].status = 0
-            this.setState({ships: tmpShips})
+            if (!collide) {
+              const tmpShips = this.state.ships
+              tmpShips[i].status = 1
+              tmpShips[i].posx = coordsX
+              tmpShips[i].posy = coordsY
+              this.setState({ships: tmpShips})
+              /*
+                here I am changing style of the potentially dynamically 
+                rendered div again! Watch me bro
+              */
+            document.getElementById(theShip).style.left = (coordsX * this.state.cellSize) + 'px'
+            document.getElementById(theShip).style.top = (coordsY * this.state.cellSize) + 'px'
+            document.getElementById(theShip).classList.add('shipPlaced')
+            }
+          } else {
+            if ((coordsX>8) || (coordsY>8)) {
+              const tmpShips = this.state.ships
+              tmpShips[i].status = 0
+              this.setState({ships: tmpShips})
 
-            document.getElementById(theShip).style.left = gridX + 'px'
-           document.getElementById(theShip).style.top = gridY + 'px'
-           document.getElementById(theShip).classList.remove('shipPlaced')
+              document.getElementById(theShip).style.left = gridX + 'px'
+              document.getElementById(theShip).style.top = gridY + 'px'
+              document.getElementById(theShip).classList.remove('shipPlaced')
+            }
           }
         }
       }
+      const shadowRestyling = {}
+      shadowRestyling['display'] = 'none'
+      this.setState({shadowStyle: shadowRestyling})
+      this.state.tmpele = undefined
+      this.readyUpdate()
     }
-    const shadowRestyling = {}
-    shadowRestyling['display'] = 'none'
-    this.setState({shadowStyle: shadowRestyling})
-
-    this.readyUpdate()
   }
 
   shipPlacementCollisionCheck = function (dragged, placed) {
@@ -292,10 +305,7 @@ export default class PiecePositioningPart extends Component {
       //console.log('AAA', i)
       for (let i = 0; i < quantity; i++) {
         const tmpId = `ship${(j+1)}_${(i+1)}_${Math.floor(Math.random()*3333)}`
-        listItems.push(
-          <div key={tmpKey} className={`ship${j+1} img`} id={tmpId} draggable="true" style={{left: (3 + i) * (this.props.cellSize * 4) + 'px', top: j * this.props.cellSize + 'px'}} onClick={e=>{this.rotateShip(e.target)}}>
-          </div>
-        )
+        listItems.push(<div key={tmpKey} className={`ship${j+1} img`} id={tmpId} draggable="true" style={{left: (3 + i) * (this.props.cellSize * 4) + 'px', top: j * this.props.cellSize + 'px'}} onClick={e=>{this.rotateShip(e.target)}}></div>)
         tmpKey += 1
         tmpShips.push({
           id: tmpId,
@@ -317,12 +327,14 @@ export default class PiecePositioningPart extends Component {
     return(
       //Board is going to basically be a background drawing in all this? even hover effects have to be on top of ships in this?
       <div className="partWrapper">
-        <h3>Place your ships onto the board</h3>
-        <button onClick={this.randomPlacement}>Random!</button>
-        <div className="boardAndPlacer container" onDragStart={ev=>{this.drag(ev)}} onDragOver={ev=>{this.dragOver(ev)}} onDrop={ev=>{this.drop(ev)}}>
+        <div className="list-group-item bg-dark text-white position-relative px-0 py-2">
+          <h3 className="m-0 p-0" style={{fontSize:'14px'}}>Drag &#38; drop your ships onto the board</h3>
+          <button style={{position: 'absolute', top: '5px', right: '5px'}}onClick={this.randomPlacement}>Random!</button>
+        </div>
+        <div className="boardAndPlacer container" draggable={false} onDragStart={ev=>{this.drag(ev)}}  onDragOver={ev=>{this.dragOver(ev)}} onDrop={ev=>{this.drop(ev)}}>
           <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={false}/>
           {this.state.shipElements}
-          <div className="shadow" style={this.state.shadowStyle}>
+          <div className="shadow" style={this.state.shadowStyle} draggable={false}>
           </div>
           
         </div>
