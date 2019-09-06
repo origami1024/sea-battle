@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import './AppExtended.css';
 import Board from './Board'
 import PiecePositioningPart from './PiecePositioningPart'
 import NavBar from './NavBar'
@@ -68,7 +69,8 @@ class App extends Component {
       //ready button in prebattle
       readyLock: true,
       readyBox: false,
-      ships: []
+      ships: [],
+      globalChatLog: ''
     }
 
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
@@ -99,7 +101,7 @@ class App extends Component {
         } else
         if (data.cmd === 'rok') {
           console.log('room ok')
-          console.log(data)
+          this.state.globalChatLog = []
           if (data.roomID && data.roomName) {
             console.log('roomID and gName exist')
             this.setState({
@@ -132,6 +134,7 @@ class App extends Component {
           console.log('jok cmd')
           //fill lobby with data
           //change state to in the lobby
+          this.state.globalChatLog = []
           if (data.rid && data.roomData.gName) {
             console.log('roomID and gName exist')
             this.setState({
@@ -184,6 +187,12 @@ class App extends Component {
             this.addRoomMsg(this.state.room.opponentName,data.msg)
           }
         } else
+        if (data.cmd === 'mgg') {
+          //global msg
+          if ((data.msg) && (data.sender)) {
+            this.addGlobalMsg(data.sender, data.msg)
+          }
+        } else
         if (data.cmd === 'her') {
           //online user list for general lobby arrived
           console.log('her! ')
@@ -225,7 +234,7 @@ class App extends Component {
     }
   }
   addRoomMsg = (who, msg) => {
-    let tmpStr = this.state.room.chatLog + `\n ${who}:  ${msg}`
+    let tmpStr = this.state.room.chatLog + `${who}:  ${msg}\n`
     this.setState({
       room: {...this.state.room, chatLog: tmpStr}
     })
@@ -234,9 +243,18 @@ class App extends Component {
     //e.preventDefault()
     //this.addRoomMsg('you', this.state.tmpRoomMsg)
     this.addRoomMsg('you', val)
-    console.log('1')
     this.ws.send(JSON.stringify({cmd: 'lmg', msg: val}))
     //this.setState({tmpRoomMsg: ''})
+  }
+  addGlobalMsg = (who, msg) => {
+    let tmpStr = this.state.globalChatLog + `${who}:  ${msg}\n`
+    this.setState({
+      globalChatLog: tmpStr
+    })
+  }
+  sendGlobalMsg = val => {
+    this.addGlobalMsg('you', val)
+    this.ws.send(JSON.stringify({cmd: 'gmg', msg: val}))
   }
   kekOpponent = () => {
     //if no opponent, say blabla
@@ -276,7 +294,9 @@ class App extends Component {
     this.ws.send(JSON.stringify({cmd: 'lgn', name: uName, pw: uPW}))
   }
   doLogout = () => {
+    this.state.globalChatLog = []
     this.ws.send(JSON.stringify({cmd: 'out'}))
+    console.log('current stage:', this.state.stage)
   }
   changeSubStage = subS => {
     this.setState({substage: subS})
@@ -424,17 +444,19 @@ class App extends Component {
             : (this.state.substage === '') //general lobby
               ? <section className="main container d-flex p-0">
                   <div className="mainMain col-10">
-                    <div className="roomsControl d-flex py-2">
-                      <button onClick={this.queryGLRefresh}>Refresh roomlist</button>
-                      <span style={{paddingLeft: "10px"}}>
-                        <input type="text" value={this.state.gamename} onChange={e=>{this.setState({gamename: e.target.value})}} />
-                        <button onClick={this.queNewRoom}>Make new room</button>
+                    <div className="roomsControl d-flex py-1 px-2 list-group-item bg-dark text-white mb-1">
+                      <button onClick={this.queryGLRefresh} className="btn btn-primary">Refresh roomlist</button>
+                      <span className="input-group" style={{paddingLeft: "10px", width: "350px"}}>
+                        <input type="text" className="form-control" value={this.state.gamename} onChange={e=>{this.setState({gamename: e.target.value})}} />
+                        <div className="input-group-append">
+                          <button onClick={this.queNewRoom} className="btn btn-primary">Make new room</button>
+                        </div>
                       </span>
                       <span style={{paddingLeft: "10px"}}>
                       {
                         this.state.joining
                         ?  <span>JOINING...</span>
-                        :  <button onClick={this.queryjoinRoom} disabled={!(this.state.rDActiveIndex in this.state.roomsData)}>Join selected room</button>
+                        :  <button className="btn btn-primary" onClick={this.queryjoinRoom} disabled={!(this.state.rDActiveIndex in this.state.roomsData)}>Join the room</button>
                       }
                       </span>
                     </div>
@@ -449,7 +471,7 @@ class App extends Component {
                         {rooms}
                       </div>
                     </div>
-                    <ChatForm title="Global chat" sendRoomMsg={val=>{alert(val)}} newLog={'fix this later'} style={{marginTop: 'auto'}}/>
+                    <ChatForm title="Global chat" sendRoomMsg={val=>{this.sendGlobalMsg(val)}} newLog={this.state.globalChatLog} style={{marginTop: 'auto'}}/>
                   </div>
                   <aside className="col-2 m-0 p-0 h-auto bg-dark rounded" style={{maxHeight: "80vh", overflow: "hidden"}}>
                     <h3 className="small gamesListHeader list-group-item bg-dark text-white p-1">playerlist - from ws (based on active sockets) : nn</h3>

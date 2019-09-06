@@ -289,6 +289,31 @@ const cmds = {
       }
     }
   },
+  gmg: (socket, cmd, usrID) => {
+    clog('gmg')
+    //send global chat message to everyone not in room
+    //check if the sender is not in room
+    if ((users[usrID]) && (users[usrID].inRoom === -1)) {
+      //if user exists and isnt in the room
+      //loop through all users
+      //clog(JSON.stringify(users))
+      for (usr in users) {
+        clog(users[usr] === users[usrID])
+        if ((users[usr] !== users[usrID]) && (users[usr].inRoom === -1)) {
+          //is not the sender, and is not in the room, send him
+          try{
+            users[usr].socket.send(JSON.stringify({
+              cmd: 'mgg',
+              sender: users[usrID].uName,
+              msg: cmd.msg
+            }))
+          } catch {
+            console.log('ERROR sending at gmg')
+          }
+        }
+      }
+    }
+  },
   all: (socket, usrID) => {
     //get all users
     clog('all')
