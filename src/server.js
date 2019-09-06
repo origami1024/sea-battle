@@ -198,7 +198,7 @@ const cmds = {
         socket.send(JSON.stringify({
           cmd: 'jok',
           rid: cmd.rid,
-          roomData: rooms[cmd.rid]
+          roomData: {...rooms[cmd.rid], hostShips: undefined}
         }))
       } catch {
         console.log('ERROR sending at joi1')
@@ -248,6 +248,8 @@ const cmds = {
         //change room
         rooms[users[usrID].inRoom].open = -1
         rooms[users[usrID].inRoom].opponentName = '--empty--'
+        rooms[users[usrID].inRoom].openRdy = false
+        rooms[users[usrID].inRoom].openShips = []
         //send to host, kek success
         try {
           socket.send(JSON.stringify({
@@ -371,10 +373,43 @@ const cmds = {
     //player in room is rdy
     //clog(JSON.stringify(cmd.ships))
     
-    //put ships in room data
+    
     //set this players rdy property in the room
     //notify other player
 
+    //check if dude is in the room
+    if (users[usrID].inRoom && users[usrID].inRoom!== -1) {
+      //TODO: CHECK THAT SHIPS DATA IS GOOD
+      //TODO: TRANSFER LESS DATA - NO SHIP IDS AND STUFF
+      //first figure out if its host or open
+      let tmpUserStatus = undefined
+      let tmpOpponentIDMeta = undefined
+      if (rooms[users[usrID].inRoom].hostID === usrID) {
+        tmpUserStatus = 'host'
+        tmpOpponentIDMeta = 'open'
+      } else
+      if (rooms[users[usrID].inRoom].open === usrID) {
+        tmpUserStatus = 'open'
+        tmpOpponentIDMeta = 'hostID'
+      }
+      if (tmpUserStatus !== undefined) {
+        //put ships and readystate in the room data
+        rooms[users[usrID].inRoom][tmpUserStatus + 'Ships'] = cmd.ships
+        rooms[users[usrID].inRoom][tmpUserStatus + 'Rdy'] = cmd.ready
+      }
+      //if there is other player in the room, send him the notification
+      if (tmpOpponentIDMeta !== undefined && rooms[users[usrID].inRoom][tmpOpponentIDMeta] !== -1) {
+        try{
+          users[rooms[users[usrID].inRoom][tmpOpponentIDMeta]].socket.send(JSON.stringify({
+            cmd: 'ord',
+            ord: cmd.ready
+          }))
+        } catch {
+          console.log('ERROR sending to opponent at rdy')
+        }
+      }
+      
+    }
   },
   trn: (socket, cmd) => {
     //receive turn data

@@ -56,7 +56,8 @@ class App extends Component {
         ishost: 1,
         opponentID: -1,
         opponentName: '--empty--',
-        chatLog: '...'
+        chatLog: '...',
+        opponentRdy: false
       },
       battle: {
         battleName: '--empty--',
@@ -105,10 +106,10 @@ class App extends Component {
           if (data.roomID && data.roomName) {
             console.log('roomID and gName exist')
             this.setState({
-              room: {roomID: data.roomID, roomName: data.roomName, ishost: 1, opponentID: -1, opponentName: '--empty--',  chatLog: ''}
+              room: {roomID: data.roomID, roomName: data.roomName, ishost: 1, opponentID: -1, opponentName: '--empty--',  chatLog: '', opponentRdy: false},
+              readyBox: false
             })
             this.changeSubStage('gameLobby')
-            console.log('cp87')
             console.log(this.state.stage)
           }
         } else
@@ -138,7 +139,8 @@ class App extends Component {
           if (data.rid && data.roomData.gName) {
             console.log('roomID and gName exist')
             this.setState({
-              room: {roomID: data.rid, roomName: data.roomData.gName, ishost: 2, opponentName: data.roomData.host, opponentID: data.roomData.hostID,  chatLog: ''}
+              room: {roomID: data.rid, roomName: data.roomData.gName, ishost: 2, opponentName: data.roomData.host, opponentID: data.roomData.hostID,  chatLog: '', opponentRdy: data.roomData.hostRdy},
+              readyBox: false
             })
             this.changeSubStage('gameLobby')
             console.log('cp87')
@@ -157,7 +159,7 @@ class App extends Component {
           if ((this.state.room.ishost) && (this.state.room.ishost === 1)) {
             this.addRoomMsg('*', this.state.room.opponentName + ' left the room')
             this.setState({
-              room: {...this.state.room, opponentName: '--empty--', opponentID: -1}
+              room: {...this.state.room, opponentName: '--empty--', opponentID: -1, opponentRdy: false}
             })
           }  else {
             console.log('error: nonhost received info that is supposed for a host')
@@ -211,6 +213,9 @@ class App extends Component {
           this.tim.start(6)
           //on0 do the change of substage, but here do all the states perhaps
 
+        } else 
+        if (data.cmd === 'ord') {
+          this.setState({room:{...this.state.room,opponentRdy: data.ord}})
         }
       } else {
         console.log('Some msg from server, but without cmd')
@@ -262,6 +267,7 @@ class App extends Component {
       if (this.state.room.opponentID !== -1) {
         //kek the butstard
         this.ws.send(JSON.stringify({cmd: 'kik'}))
+        this.setState({room:{...this.state.room,opponentRdy: false}})
       } else {
         alert('slot 2 is empty')
       }
@@ -277,16 +283,15 @@ class App extends Component {
     //first of all make a limit to get ready/unready only once per 5 second in the client
     if ((this.state.stage === 'logged') && (this.state.substage === 'gameLobby')) {
       //maybe add more dependencies, like if in the room etc, though all that needed to be duplicate checked on server
-      console.log('TROLOLO')
-      console.log(JSON.stringify(this.state.ships))
       //console.log(this.state.ships)
       //alert(this.state.readyBox)
       
       this.ws.send(JSON.stringify({
         cmd: 'rdy',
-        ships: this.state.ships,
+        ships: !this.state.readyBox ? this.state.ships : [],
         ready: !this.state.readyBox
       }))
+      console.log('readyBox ',!this.state.readyBox)
       this.setState({readyBox: !this.state.readyBox})
     }
   }
@@ -294,7 +299,7 @@ class App extends Component {
     this.ws.send(JSON.stringify({cmd: 'lgn', name: uName, pw: uPW}))
   }
   doLogout = () => {
-    this.state.globalChatLog = []
+    this.setState({globalChatLog: []})
     this.ws.send(JSON.stringify({cmd: 'out'}))
     console.log('current stage:', this.state.stage)
   }
@@ -486,20 +491,19 @@ class App extends Component {
                         <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[0]}}>
                           <span style={{width:"20%"}} className="py-1">{this.state.user.name}</span>
                           <span style={{width:"20%"}} className="py-1">red</span>
-                          <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
+                          <span style={{width:"20%"}} className={`py-1 ${this.state.readyBox ? "bg-success" :"bg-warning"}`}>{this.state.readyBox ? 'Ready' : 'Not ready'}</span>
                         </div>
                         <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[1]}}>
                           <span style={{width:"20%"}} className="py-1">{this.state.room.opponentName}</span>
                           <span style={{width:"20%"}} className="py-1">green</span>
-                          <span style={{width:"20%"}} className="py-1 bg-warning">Not ready</span>
+                          <span style={{width:"20%"}} className={`py-1 ${this.state.room.opponentRdy ? "bg-success" :"bg-warning"}`}>{this.state.room.opponentRdy ? 'Ready' : 'Not ready'}</span>
                         </div>
                       </div>
                       <div>
-                        <button onClick={this.leaveRoom}>leave the room</button>
+                        <button onClick={this.leaveRoom}>leave room</button>
                         
-                        <input onClick={this.toggleReady} disabled={this.state.readyLock} type="checkbox" id="gameLobby__readyCB" value={this.state.readyBox}/>
+                        <input onChange={this.toggleReady} disabled={false/*this.state.readyLock*/} type="checkbox" id="gameLobby__readyCB" checked={this.state.readyBox}/>
                         <label htmlFor="gameLobby__readyCB">ready</label>
-                        {/*<button onClick={this.toggleReady} disabled={this.state.readyLock}>ready toggle</button>*/}
                         <button onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
                         <button onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                       </div>

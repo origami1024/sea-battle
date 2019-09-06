@@ -202,8 +202,7 @@ export default class PiecePositioningPart extends Component {
       }
       const shadowRestyling = {}
       shadowRestyling['display'] = 'none'
-      this.setState({shadowStyle: shadowRestyling})
-      this.state.tmpele = undefined
+      this.setState({shadowStyle: shadowRestyling, tmpele: undefined})
       this.readyUpdate()
     }
   }
