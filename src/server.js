@@ -146,30 +146,29 @@ const cmds = {
               //kek the other dud out
               try {
                 users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host left the room"}')
+                users[rooms[users[usrID].inRoom].open].inRoom = -1
               } catch {
                 console.log('ERROR sending at lea1')
               }
-              
-              users[rooms[users[usrID].inRoom].open].inRoom = -1
             }
             //delete the instance
             delete rooms[users[usrID].inRoom]
             clog('room deleted')
           } else {
-            //its not the host, open the space
-            clog('nonhost left a room')
-            rooms[users[usrID].inRoom].open = -1
-            //send host info that the dud left
-            try {
-              users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
-                cmd: 'ole'//opponent left
-              }))
-            } catch {
-              console.log('ERROR sending at lea2')
-            }
+              //its not the host, open the space
+              clog('nonhost left a room')
+              rooms[users[usrID].inRoom].open = -1
+              //send host info that the dud left
+              try {
+                users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
+                  cmd: 'ole'//opponent left
+                }))
+              } catch {
+                console.log('ERROR sending at lea2')
+              }
             
-          }
-          users[usrID].inRoom = -1
+            }
+            users[usrID].inRoom = -1
           try {
             socket.send('{"cmd": "ler"}')
           } catch {
@@ -240,11 +239,10 @@ const cmds = {
         //send to dud that he is keked
         try {
           users[rooms[users[usrID].inRoom].open].socket.send('{"cmd": "ler", "why": "Host keked you"}')
+          users[rooms[users[usrID].inRoom].open].inRoom = -1
         } catch {
           console.log('ERROR sending at kik1')
         }
-        
-        users[rooms[users[usrID].inRoom].open].inRoom = -1
         //change room
         rooms[users[usrID].inRoom].open = -1
         rooms[users[usrID].inRoom].opponentName = '--empty--'

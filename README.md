@@ -8,12 +8,12 @@
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
 8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now elements are moved externally through js!!!
-10. change readyToggle button to checkbox, fix design there
-11. make the readyToggle send data to server, and to the other room participant if there is one
 12. player stats, like win/lose; levels
 13. player info
 14. add scrolling and maxHeight to the gameslist and to the playerlist in app
 15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
+16. fix the interface in prebattle
+17. arrange battle interface
 
 ## to start the server:
 go to src/ and do
