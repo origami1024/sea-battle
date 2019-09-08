@@ -10,12 +10,13 @@ const server = new webSoc.Server({
 })
 let users = {}
 let rooms = {
-  1: {gName: 'small game', open: -1, host: 'hoster1', hostID: 888, opponentName: '--empty--', hostRdy: false, openRdy: false, hostShips: [], openShips: []},
-  2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo', hostRdy: false, openRdy: false, hostShips: [], openShips: []}
+  1: {gName: 'small game', open: -1, host: 'hoster1', hostID: 888, opponentName: '--empty--', hostRdy: false, openRdy: false, hostShips: [], openShips: [], battleId: -1},
+  2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo', hostRdy: false, openRdy: false, hostShips: [], openShips: [], battleId: -1}
 }
 let matches = {}
 let userCounter = 1
 let roomCounter = 3
+let matchCounter = 1
 const cmds = {
   lgn: (socket, data) => {
     let user = {
@@ -107,7 +108,8 @@ const cmds = {
           hostRdy: false,
           openRdy: false,
           hostShips: [],
-          openShips: []
+          openShips: [],
+          battleId: -1 //have battle started? -1 no, otherwise the id of the match
         }
         users[usrID].inRoom = roomCounter
         try{
@@ -338,24 +340,28 @@ const cmds = {
       //check if there is opponent
       if (rooms[users[usrID].inRoom].open !== -1) {
         //create new match on server
-        let match = {
-          players: [
-            {
-              id: -1,
-              border: [],
-              enemyBorder: [],
-              currnetTurn: ''
-            },
-            {
-              id: -1,
-              border: [],
-              enemyBorder: [],
-              currnetTurn: ''
-            }
-          ],
+        let tmpPlayers = {}
+        tmpPlayers[usrID] = {
+          id: usrID,
+          ships: rooms[users[usrID].inRoom].hostShips,
+          hits: [], //player's attacks! maybe make a matrix with 0, and fill in the 1s, or just put hits for now, and send them all each time
+          thisTurnHit: undefined //if undefined - havent done the turn
+        }
+        tmpPlayers[rooms[users[usrID].inRoom].open] = {
+          id: rooms[users[usrID].inRoom].open,
+          ships: rooms[users[usrID].inRoom].openShips,
+          hits: [],
+          thisTurnHit: undefined //if undefined - havent done the turn
+        }
+        matches[matchCounter] = {
+          //need a way to describe dead ships to see if a player has lost
+          //in the room there should be tag - if in staging or in battle
+          players: tmpPlayers,
+          matchID: -1, //from the counter
           matchName: '',
           turn: 0,
         }
+        matchCounter += 1
         //send to both - 'new' and the match info, that players will have to synchronize with
         users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
           cmd:'new'
@@ -371,6 +377,7 @@ const cmds = {
     //player in room is rdy
 
     //check if dude is in the room
+    
     if (users[usrID].inRoom && users[usrID].inRoom!== -1) {
       //TODO: CHECK THAT SHIPS DATA IS GOOD
       //TODO: TRANSFER LESS DATA - NO SHIP IDS AND STUFF

@@ -2,6 +2,7 @@
 ##technologies: nodejs, websockets, react, bootstrap, stylus
 
 ## TODO:
+23. Now working at: implementing ggo command in the server, sending both dudes needed match info, setting turn timer
 1. login with cookies, generate sessions and store/check with postgres db
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
@@ -18,6 +19,7 @@
 19. time to do turn limit!
 20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
 21. handle leaving while game is starting
+22. in the room there should be tag - if in staging or in battle
 
 
 ## to start the server:

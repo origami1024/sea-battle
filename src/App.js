@@ -237,6 +237,7 @@ class App extends Component {
       this.ws.send(JSON.stringify({cmd: 'ggo'}))
 
     } else {
+      alert('Cant launch, someone is not ready!')
       console.log('smth wrong')
     }
   }
@@ -287,13 +288,21 @@ class App extends Component {
       //maybe add more dependencies, like if in the room etc, though all that needed to be duplicate checked on server
       //console.log(this.state.ships)
       //alert(this.state.readyBox)
-      
+
+      //deleting some props in the ships before sending
+      let tmpShips = !this.state.readyBox ? this.state.ships : []
+      for (var i = 0, len = tmpShips.length; i < len; i++) {
+        delete tmpShips[i].initPosx
+        delete tmpShips[i].initPosy
+        delete tmpShips[i].status
+      }
+      //console.log(tmpShips)
       this.ws.send(JSON.stringify({
         cmd: 'rdy',
-        ships: !this.state.readyBox ? this.state.ships : [],
+        ships: tmpShips,
         ready: !this.state.readyBox
       }))
-      console.log('readyBox ',!this.state.readyBox)
+      //console.log('readyBox ',!this.state.readyBox)
       this.setState({readyBox: !this.state.readyBox})
     }
   }
@@ -427,23 +436,25 @@ class App extends Component {
           {/*<button onClick={e=>{this.ws.send(JSON.stringify({cmd:"prt"}))}}>prt</button>*/}
         </NavBar>
         {(this.state.stage === 'logged')
-          ? (this.state.substage === 'battle') //battle
-            ? <section className="main battle">
-                <div>{this.state.battle.battleName} : {this.state.battle.battleid}</div>
-                <div className="battleView d-flex justify-content-around">
+          ? (this.state.substage !== 'battle') //battle
+            ? <section className="main battle container">
+                <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName} : {this.state.battle.battleid}</div>
+                <div className="battleView d-flex justify-content-around border mb-1 pt-1">
                   <div>
-                    <div>{this.state.user.name || '--empty--'}</div>
+                    <div className="list-group-item bg-dark text-white p-1">{this.state.user.name || '--empty--'}</div>
                     <Board className="ownBoard" drawObjects={1} cellSize={25}/>
                   </div>
                   <div>
-                    <div>{this.state.battle.opponentName}</div>
+                    <div className="list-group-item bg-dark text-white p-1">{this.state.battle.opponentName}</div>
                     <Board className="enemyBoard" drawObjects={0} cellSize={25} color={"black"}/>
                   </div>
                 </div>
-                <div className="battleControls container">
-                  <div>battle controls</div>
-                  <button>shoot(making a turn)</button>
-                  <button>surrender</button>
+                <div className="battleControls mb-1 border">
+                  <p className="list-group-item bg-dark text-white p-1">battle controls</p>
+                  <div className="battleControls__wrapper p-1">
+                    <button className="btn btn-outline-primary mx-1">make the turn</button>
+                    <button className="btn btn-outline-primary mx-1">surrender</button>
+                  </div>
                 </div>
                 <ChatForm sendRoomMsg={val=>{alert(val)}} newLog={this.state.battle.chatLog}/>
                 <button onClick={e=>{this.setState({battle: {chatLog: this.state.battle.chatLog + '\ntrolo'}})}}>testChatF</button>
@@ -489,10 +500,10 @@ class App extends Component {
                 ? <section className="main container">
                     <div className="list-group-item bg-dark text-white p-1">Room <strong>{this.state.room.roomName}</strong> : {this.state.room.roomID}</div>
                     <div className="d-flex border mb-1">
-                      <div className="d-flex flex-column">
-                        <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[0]}}>
-                          <span style={{width:"20%"}} className="py-1">{this.state.user.name}</span>
-                          <span style={{width:"20%"}} className={`custom-control custom-checkbox py-1 ${this.state.readyBox ? "bg-success" :"bg-warning"}`}>
+                      <div className="d-flex flex-column w-50">
+                        <div className="gameLobby__playerLine" style={{display:'flex', order: order[0]}}>
+                          <span className="w-50 py-1">{this.state.user.name}</span>
+                          <span className={`w-50 custom-control custom-checkbox py-1 ${this.state.readyBox ? "bg-success" :"bg-warning"}`}>
                             <div className="custom-control custom-checkbox p-0">
                               <input className="custom-control-input" onChange={this.toggleReady} disabled={false/*this.state.readyLock*/} type="checkbox" id="gameLobby__readyCB" checked={this.state.readyBox}/>
                               <label className="custom-control-label" htmlFor="gameLobby__readyCB">
@@ -501,19 +512,19 @@ class App extends Component {
                             </div>
                           </span>
                         </div>
-                        <div className="gameLobby__playerLine" style={{width:"600px", display:'flex', order: order[1]}}>
-                          <span style={{width:"20%"}} className="py-1">{this.state.room.opponentName}</span>
-                          <span style={{width:"20%"}} className={`py-1 ${this.state.room.opponentRdy ? "bg-success" :"bg-warning"}`}>{this.state.room.opponentRdy ? 'Ready' : 'Not ready'}</span>
+                        <div className="gameLobby__playerLine" style={{display:'flex', order: order[1]}}>
+                          <span className="w-50 py-1">{this.state.room.opponentName}</span>
+                          <span className={`w-50 py-1 ${this.state.room.opponentRdy ? "bg-success" :"bg-warning"}`}>{this.state.room.opponentRdy ? 'Ready' : 'Not ready'}</span>
                         </div>
                       </div>
-                      <div className="d-flex ">
-                        <button className="btn btn-outline-primary m-1" onClick={this.leaveRoom}>leave room</button>
+                      <div className="d-flex w-50">
+                        <button className="btn btn-outline-primary m-0 m-md-1" onClick={this.leaveRoom}>leave room</button>
                         {//<input onChange={this.toggleReady} disabled={false/*this.state.readyLock*/} type="checkbox" id="gameLobby__readyCB" checked={this.state.readyBox}/>
                         //<label htmlFor="gameLobby__readyCB">ready</label>*/
                         }
-                        <div className="d-inline">
-                          <button className="btn btn-outline-primary m-1" onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
-                          <button className="btn btn-outline-primary m-1" onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
+                        <div className="d-inline m-0">
+                          <button className="btn btn-outline-primary m-0 m-md-1" onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
+                          <button className="btn btn-outline-primary m-0 m-md-1" onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                         </div>
                       </div>
                     </div>
