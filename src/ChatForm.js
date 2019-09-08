@@ -29,9 +29,9 @@ export default class ChatForm extends Component {
   //        - populate the chatLog, when server sends shit this direction
   render () {
     return (
-      <form className="chatWrapper container p-0 d-flex flex-column" onSubmit={this.submitExternal}>
+      <form className="chatForm container p-0 d-flex flex-column" onSubmit={this.submitExternal}>
         <div className="list-group-item bg-dark text-white p-1">{this.props.title || 'local chat'}</div>
-        <textarea readOnly ref={(node) =>{this.ta=node}} className="col-12" style={{minHeight: "120px", resize: "none"}} value={this.state.chatLog}/>
+        <textarea readOnly ref={(node) =>{this.ta=node}} className="chatForm__output col-12" value={this.state.chatLog}/>
         <div className="d-flex">
           <div className="col-10 p-0">
             <input type="text" className="w-100 p-1" value={this.state.tmpRoomMsg} onChange={e=>{this.setState({tmpRoomMsg: e.target.value})}}/>

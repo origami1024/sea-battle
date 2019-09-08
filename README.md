@@ -14,6 +14,11 @@
 15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
 16. fix the interface in prebattle
 17. arrange battle interface
+18. send game ended command
+19. time to do turn limit!
+20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
+21. handle leaving while game is starting
+
 
 ## to start the server:
 go to src/ and do

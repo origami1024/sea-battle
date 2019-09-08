@@ -369,11 +369,6 @@ const cmds = {
   },
   rdy: (socket, cmd, usrID) => {
     //player in room is rdy
-    //clog(JSON.stringify(cmd.ships))
-    
-    
-    //set this players rdy property in the room
-    //notify other player
 
     //check if dude is in the room
     if (users[usrID].inRoom && users[usrID].inRoom!== -1) {
@@ -417,11 +412,12 @@ const cmds = {
   ong: (socket, cmd) => {
     //answer to ping
     //with if in room, if logged
+    //also needs to send ping each few mins
   },
   sur: (socket, cmd, usrID) => {
     //surrender the game, leave to lobby
   }
-
+  //
 
 }
 //server inititated to other client:

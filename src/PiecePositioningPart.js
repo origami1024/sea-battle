@@ -63,8 +63,7 @@ export default class PiecePositioningPart extends Component {
   }
 
   drag = function (ev) {
-    console.log('URFO')
-    console.log(ev.target)
+    ev.dataTransfer.setData('text/plain', 'anything')//withotu this firefox doesnt do dragNdrop
     if((ev.target) && (ev.target.classList.contains('img'))) {
       console.log('inside')
       var rect = ev.target.getBoundingClientRect()
@@ -251,50 +250,53 @@ export default class PiecePositioningPart extends Component {
     this.props.onReadyChange(!this.checkAllShipsPlacementReadyness(), this.state.ships)
   }
   rotateShip = (target) => {
-    for (let i = this.state.ships.length - 1; i >= 0; i--) {
-      if (this.state.ships[i].id===target.id) {
-        const propperOri = !this.state.ships[i].orientation
-        //this.state.ships[i].orientation = !this.state.ships[i].orientation
-        //dafuq is this, u cant change orientation like this
-        const tmpShips = this.state.ships
-        tmpShips[i].orientation = propperOri
-        this.setState({ships: tmpShips})
-        const l = this.state.ships[i].length
-        target.classList.toggle(`ship${l}`)
-				target.classList.toggle(`ship${l}Rotated`)
-        
-        //here check on collision and crossing the borders
-        let coordsX = this.state.ships[i].posx
-        let coordsY = this.state.ships[i].posy
-        let dump = false
-        if ((coordsX+(propperOri ? 0 : l - 1)<8) && (coordsX>=0) && (coordsY+(propperOri ? l - 1 : 0)<8) && (coordsY>=0)) {
-          //inside the board
-          for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
-						if ((this.state.ships[ii].status === 1) && (ii !== i)) {
-							dump = dump || this.shipPlacementCollisionCheck({
-                posx: coordsX,
-								posy: coordsY,
-								length: l,
-								orientation: propperOri
-              }, this.state.ships[ii])
-						}
-		  		}
-        } else {
-          dump = true
-          //is not inside the board
+    if (!this.props.piecesLocked) { //on ready - no pieces movement
+      for (let i = this.state.ships.length - 1; i >= 0; i--) {
+        if (this.state.ships[i].id===target.id) {
+          const propperOri = !this.state.ships[i].orientation
+          //this.state.ships[i].orientation = !this.state.ships[i].orientation
+          //dafuq is this, u cant change orientation like this
+          const tmpShips = this.state.ships
+          tmpShips[i].orientation = propperOri
+          this.setState({ships: tmpShips})
+          const l = this.state.ships[i].length
+          target.classList.toggle(`ship${l}`)
+          target.classList.toggle(`ship${l}Rotated`)
+          
+          //here check on collision and crossing the borders
+          let coordsX = this.state.ships[i].posx
+          let coordsY = this.state.ships[i].posy
+          let dump = false
+          if ((coordsX+(propperOri ? 0 : l - 1)<8) && (coordsX>=0) && (coordsY+(propperOri ? l - 1 : 0)<8) && (coordsY>=0)) {
+            //inside the board
+            for (let ii = this.state.ships.length - 1; ii >= 0; ii--) {
+              if ((this.state.ships[ii].status === 1) && (ii !== i)) {
+                dump = dump || this.shipPlacementCollisionCheck({
+                  posx: coordsX,
+                  posy: coordsY,
+                  length: l,
+                  orientation: propperOri
+                }, this.state.ships[ii])
+              }
+            }
+          } else {
+            dump = true
+            //is not inside the board
+          }
+          if (dump) {
+            const tmpShips2 = this.state.ships
+            tmpShips[i].posx = this.state.ships[i].initPosx
+            tmpShips[i].posy = this.state.ships[i].initPosy
+            this.setState({ships: tmpShips2})
+            target.style.left = this.state.ships[i].initPosx * this.props.cellSize + 'px'
+            target.style.top = this.state.ships[i].initPosy * this.props.cellSize + 'px'
+            target.classList.remove('shipPlaced')
+          }
+  
         }
-        if (dump) {
-          const tmpShips2 = this.state.ships
-          tmpShips[i].posx = this.state.ships[i].initPosx
-          tmpShips[i].posy = this.state.ships[i].initPosy
-          this.setState({ships: tmpShips2})
-					target.style.left = this.state.ships[i].initPosx * this.props.cellSize + 'px'
-					target.style.top = this.state.ships[i].initPosy * this.props.cellSize + 'px'
-					target.classList.remove('shipPlaced')
-        }
-
       }
     }
+    
   }
   prepareShips = params => {
     const listItems = []
@@ -330,10 +332,10 @@ export default class PiecePositioningPart extends Component {
           <h3 className="m-0 p-0" style={{fontSize:'14px'}}>Drag &#38; drop your ships onto the board</h3>
           <button style={{position: 'absolute', top: '5px', right: '5px'}}onClick={this.randomPlacement}>Random!</button>
         </div>
-        <div className="boardAndPlacer container" draggable={false} onDragStart={ev=>{this.drag(ev)}}  onDragOver={ev=>{this.dragOver(ev)}} onDrop={ev=>{this.drop(ev)}}>
+        <div className="boardAndPlacer container" onDragStart={this.props.piecesLocked ? ()=>{} : ev=>{this.drag(ev)}}  onDragOver={this.props.piecesLocked ? ()=>{} : ev=>{this.dragOver(ev)}} onDrop={this.props.piecesLocked ? ()=>{} : ev=>{this.drop(ev)}}>
           <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={false}/>
           {this.state.shipElements}
-          <div className="shadow" style={this.state.shadowStyle} draggable={false}>
+          <div className="shadow" style={this.state.shadowStyle}>
           </div>
           
         </div>
