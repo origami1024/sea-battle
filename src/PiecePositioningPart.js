@@ -18,7 +18,6 @@ export default class PiecePositioningPart extends Component {
         'offsX': 0,
         'offsY': 0
       },
-      cellSize: this.props.cellSize,
       params: this.props.params, //starting quantities of each size ship, for example [4,3,2,1]
       shipElements: [],
       tmpele: undefined,
@@ -182,8 +181,8 @@ export default class PiecePositioningPart extends Component {
                 here I am changing style of the potentially dynamically 
                 rendered div again! Watch me bro
               */
-            document.getElementById(theShip).style.left = (coordsX * this.state.cellSize) + 'px'
-            document.getElementById(theShip).style.top = (coordsY * this.state.cellSize) + 'px'
+            document.getElementById(theShip).style.left = (coordsX * this.props.cellSize) + 'px'
+            document.getElementById(theShip).style.top = (coordsY * this.props.cellSize) + 'px'
             document.getElementById(theShip).classList.add('shipPlaced')
             }
           } else {

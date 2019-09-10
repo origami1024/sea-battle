@@ -361,14 +361,41 @@ const cmds = {
           matchName: '',
           turn: 0,
         }
-        matchCounter += 1
+
+        //change the room info
+        rooms[users[usrID].inRoom].battleId = matchCounter
+        
+        matchCounter += 1      
         //send to both - 'new' and the match info, that players will have to synchronize with
-        users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
-          cmd:'new'
-        }))
-        users[rooms[users[usrID].inRoom].open].socket.send(JSON.stringify({
-          cmd:'new'
-        }))
+        //actually there is nothing to send at this point, so...
+        let tmpMatchInfo1 = {
+          ourHits: [],
+          opponentsHits: [],
+          ourThisTurnHit: [],
+          opponentThisTurnHit: []
+        }
+        let tmpMatchInfo2 = {
+          ourHits: [],
+          opponentsHits: [],
+          ourThisTurnHit: [],
+          opponentThisTurnHit: []
+        }
+        try {
+          users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
+            cmd:'new',
+            tmpMatchInfo1
+          }))
+        } catch {
+          console.log('ERROR sending to player 1 at ggo')
+        }
+        try {
+          users[rooms[users[usrID].inRoom].open].socket.send(JSON.stringify({
+            cmd:'new',
+            tmpMatchInfo2
+          }))
+        } catch {
+          console.log('ERROR sending to player 2 at ggo')
+        }
       }
       
     }

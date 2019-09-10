@@ -1,5 +1,13 @@
-import React, { Component } from 'react';
-import ship1 from './ship1.png';
+import React, { Component } from 'react'
+import ship1 from './ship1.png'
+import ship1r from './ship1Rotated.png'
+import ship2 from './ship2.png'
+import ship2r from './ship2Rotated.png'
+import ship3 from './ship3.png'
+import ship3r from './ship3Rotated.png'
+import ship4 from './ship4.png'
+import ship4r from './ship4Rotated.png'
+
 
 /*
   what should be the board component
@@ -22,26 +30,6 @@ export default class Board extends Component {
     this.state = {
       w: 8,
       h: 8,
-      ships: [
-        {
-          size: 4,
-          x: 3,
-          y: 0,
-          ori: 0
-        },
-        {
-          size: 3,
-          x: 1,
-          y: 6,
-          ori: 1
-        },
-        {
-          size: 2,
-          x: 6,
-          y: 4,
-          ori: 1
-        }
-      ],
       hitMarks: [
         {x:0,
           y:0}
@@ -51,28 +39,25 @@ export default class Board extends Component {
     }
   }
 
-  drawBoard = (w, h, cSize, ctx, ix=0, iy=0, color="lightblue", selected=null) => {
+  drawBoard = (w, h, cSize, ctx, ix=0, iy=0, color="lightblue", textColor="black") => {
     ctx.fillStyle = color
     ctx.strokeStyle = "gray"
+    ctx.lineWidth = 2
     ctx.fillRect(0,0,(w+1)*cSize,(h+1)*cSize)
     for (let x = 0; x < w; x++) { 
       for (let y = 0; y < h; y++) {
-        if ((selected !== null) && (x === selected[0]) && (y === selected[1])) {
-          ctx.strokeStyle = "red"
-          ctx.strokeRect(ix + x*cSize, iy + y*cSize,cSize, cSize)
-          ctx.strokeStyle = "gray"
-        } else {
-          ctx.strokeRect(ix + x*cSize, iy + y*cSize,cSize, cSize)
-        }
+        ctx.strokeRect(ix + x*cSize, iy + y*cSize,cSize, cSize)
       }   
     }
+    ctx.lineWidth = 1
+    ctx.font = "16px Arial"
     let letters = 'abcdefghij'
     for (let x = 0; x < w; x++) {
-      ctx.strokeStyle = "black"
+      ctx.strokeStyle = textColor
       ctx.strokeText(letters[x], (x+0.25)*cSize, (h+0.75)*cSize)
     }
     for (let y = 0; y < h; y++) {
-      ctx.strokeStyle = "black"
+      ctx.strokeStyle = textColor
       ctx.strokeText(y, (w+0.5)*cSize, (y+0.75)*cSize)
     }
   }
@@ -84,18 +69,52 @@ export default class Board extends Component {
       let localY = e.pageY - e.target.offsetTop
       let cellX = ~~(localX / this.props.cellSize)
       let cellY = ~~(localY / this.props.cellSize)
-      this.setState({selectedCell: [cellX, cellY]})
+      if ((cellX<this.state.w) && (cellY<this.state.h)) {
+        this.setState({selectedCell: [cellX, cellY]})
+      }
     }
     
   }
-  drawShips = e => {
+  drawShips = ctx => {
+    //console.log('DRAWING SHIPS IN BOARD!')
+    this.props.ships.forEach(shp => {
+      /*console.log('ship:' + shp.id)
+      ctx.strokeStyle = "black"
+      ctx.strokeText(shp.id, shp.posx*this.props.cellSize, shp.posy*this.props.cellSize)*/
+      let ori = shp.orientation ? 0 : 1
+      ctx.drawImage(shp.orientation? this.state.imagesR[`img${shp.length}`]: this.state.images[`img${shp.length}`], shp.posx*this.props.cellSize, shp.posy*this.props.cellSize, this.props.cellSize + this.props.cellSize*((shp.length - 1)*ori), this.props.cellSize + this.props.cellSize*((shp.length - 1)*(1 - ori)))
+    })
+  }
+  drawHits = ctx => {
+    this.props.hits.forEach(hit => {
+      ctx.strokeStyle = "red"
+      ctx.lineWidth = 9
+      ctx.beginPath()
+      ctx.moveTo(hit.x * this.props.cellSize, hit.y * this.props.cellSize)
+      ctx.lineTo(this.props.cellSize + hit.x * this.props.cellSize, this.props.cellSize + hit.y * this.props.cellSize)
+      ctx.moveTo(this.props.cellSize + hit.x * this.props.cellSize, hit.y * this.props.cellSize)
+      ctx.lineTo(hit.x * this.props.cellSize, this.props.cellSize + hit.y * this.props.cellSize)
+      ctx.stroke()
+      ctx.lineWidth = 3
+    })
+  }
+  drawSelected = (ctx, selected) => {
+    if (selected != null) {
+      ctx.strokeStyle = "orange"
+      ctx.strokeRect(selected[0] * this.props.cellSize, selected[1] * this.props.cellSize, this.props.cellSize, this.props.cellSize)
+      ctx.strokeStyle = "gray"
+    }
+  }
+  drawAll = e => {
     if (this.img){
-      this.drawBoard(this.state.w, this.state.h, this.props.cellSize, this.state.ctx, 0, 0, this.props.color, this.state.selectedCell)
-      if (this.props.drawObjects) {
-        this.state.ships.forEach( obj =>
-          this.state.ctx.drawImage(this.img, obj.x*this.props.cellSize, obj.y*this.props.cellSize, this.props.cellSize + this.props.cellSize*(obj.size*obj.ori), this.props.cellSize + this.props.cellSize*(obj.size*(1 - obj.ori)))
-        )
+      this.drawBoard(this.state.w, this.state.h, this.props.cellSize, this.state.ctx, 0, 0, this.props.color, this.props.textColor)
+      if (this.props.drawShips) {
+        this.drawShips(this.state.ctx)
       }
+      if (this.props.drawHits) {
+        this.drawHits(this.state.ctx)
+      }
+      this.drawSelected(this.state.ctx, this.state.selectedCell || null)
     }
   }
   componentDidMount() {
@@ -104,14 +123,47 @@ export default class Board extends Component {
     this.img = new Image();
     this.img.src = ship1
     this.setState({ctx: canvas.getContext("2d")} )
-    this.img.onload = this.drawShips
+    //this.img.onload = this.drawAll
+
+    let img1 = new Image();
+    img1.src = ship1
+    let img1r = new Image();
+    img1r.src = ship1r
+    let img2 = new Image();
+    img2.src = ship2
+    let img2r = new Image();
+    img2r.src = ship2r
+
+    let img3 = new Image();
+    img3.src = ship3
+    let img3r = new Image();
+    img3r.src = ship3r
+    let img4 = new Image();
+    img4.src = ship4
+    let img4r = new Image();
+    img4r.src = ship4r
+
+    const images = {
+      img1 : img1,
+      img2 : img2,
+      img3 : img3,
+      img4 : img4
+    }
+    const imagesR = {
+      img1: img1r,
+      img2: img2r,
+      img3: img3r,
+      img4: img4r
+    }
+    img4r.onload = this.drawAll
+    this.setState({images, imagesR})
     //this.setState({img: this.refs.image})
   }
   componentWillMount() {
     
   }
   componentDidUpdate() {
-    this.drawShips()
+    this.drawAll()
   }
   render() {
     //console.log('board rendered')

@@ -6,13 +6,14 @@ import PiecePositioningPart from './PiecePositioningPart'
 import NavBar from './NavBar'
 import ProfileControl from './ProfileControl'
 import ChatForm from './ChatForm'
+import BattleBoard from './BattleBoard'
 
 
 class StartTimer {
   constructor(props) {
     this.props = props
     this.state = {
-      c: 6
+      c: 1
     }
   }
   start = t => {
@@ -206,12 +207,10 @@ class App extends Component {
         if (data.cmd === 'new') {
           //game starts
           //do 5-4-3-2-1
-          
-          //get on with basic interface
-          //current game state object
-          //
-          this.tim.start(6)
+          this.tim.start(1)
           //on0 do the change of substage, but here do all the states perhaps
+          //
+          console.log(JSON.stringify(this.state.ships))
 
         } else 
         if (data.cmd === 'ord') {
@@ -422,8 +421,6 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    
-    
   }
   render() {
     const rooms = this.refreshGamesList(this.state.roomsData)
@@ -440,20 +437,17 @@ class App extends Component {
             ? <section className="main battle container">
                 <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName} : {this.state.battle.battleid}</div>
                 <div className="battleView d-flex justify-content-around border mb-1 pt-1">
-                  <div>
-                    <div className="list-group-item bg-dark text-white p-1">{this.state.user.name || '--empty--'}</div>
-                    <Board className="ownBoard" drawObjects={1} cellSize={25}/>
-                  </div>
+                  <BattleBoard title={this.state.user.name} ships={this.state.ships} cellSize={30} color={"seagreen"}/>
                   <div>
                     <div className="list-group-item bg-dark text-white p-1">{this.state.battle.opponentName}</div>
-                    <Board className="enemyBoard" drawObjects={0} cellSize={25} color={"black"}/>
+                    <Board className="enemyBoard" drawObjects={0} cellSize={30} color={"black"} textColor={"white"}/>
                   </div>
                 </div>
                 <div className="battleControls mb-1 border">
                   <p className="list-group-item bg-dark text-white p-1">battle controls</p>
                   <div className="battleControls__wrapper p-1">
-                    <button className="btn btn-outline-primary mx-1">make the turn</button>
-                    <button className="btn btn-outline-primary mx-1">surrender</button>
+                    <button className="btn btn-outline-primary mx-1 py-1 px-2">make the turn</button>
+                    <button className="btn btn-outline-primary mx-1 py-1 px-2">surrender</button>
                   </div>
                 </div>
                 <ChatForm sendRoomMsg={val=>{alert(val)}} newLog={this.state.battle.chatLog}/>
