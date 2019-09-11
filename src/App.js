@@ -61,17 +61,26 @@ class App extends Component {
         opponentRdy: false
       },
       battle: {
-        battleName: '--empty--',
+        battleState: undefined,
+        battleName: 'battle without a name',
         battleid: -1,
         opponentID: -1,
         opponentName: '--empty--',
-        chatLog: ''
+        chatLog: '',
+        ourHits: [
+          {x:1, y:1},
+          {x:1, y:2},
+          {x:1, y:3},
+          {x:5, y:7}
+        ],
+        opponentsHits: []
         //own field, enemy field
       },
       //ready button in prebattle
       readyLock: true,
       readyBox: false,
-      ships: [],
+      //ships: [],
+      ships: [{"id":"ship1_1_105","length":1,"posx":7,"posy":0,"orientation":false},{"id":"ship1_2_787","length":1,"posx":7,"posy":4,"orientation":false},{"id":"ship1_3_3233","length":1,"posx":7,"posy":2,"orientation":false},{"id":"ship2_1_1294","length":2,"posx":0,"posy":0,"orientation":false},{"id":"ship2_2_1946","length":2,"posx":4,"posy":7,"orientation":false},{"id":"ship2_3_2365","length":2,"posx":7,"posy":6,"orientation":true},{"id":"ship3_1_1838","length":3,"posx":3,"posy":0,"orientation":false},{"id":"ship3_2_1476","length":3,"posx":0,"posy":7,"orientation":false},{"id":"ship4_1_2690","length":4,"posx":0,"posy":2,"orientation":true}], //draw ships in canvas? //draw ships from props???,
       globalChatLog: ''
     }
 
@@ -211,7 +220,11 @@ class App extends Component {
           //on0 do the change of substage, but here do all the states perhaps
           //
           console.log(JSON.stringify(this.state.ships))
-
+          this.setState({battle: {
+            battleState: 'turn', //waiting for the turn, other possible values - undefined and 'wait'
+            battleName: data.battleName,
+            opponentName: data.opponentName
+          }})
         } else 
         if (data.cmd === 'ord') {
           this.setState({room:{...this.state.room,opponentRdy: data.ord}})
@@ -437,11 +450,9 @@ class App extends Component {
             ? <section className="main battle container">
                 <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName} : {this.state.battle.battleid}</div>
                 <div className="battleView d-flex justify-content-around border mb-1 pt-1">
-                  <BattleBoard title={this.state.user.name} ships={this.state.ships} cellSize={30} color={"seagreen"}/>
-                  <div>
-                    <div className="list-group-item bg-dark text-white p-1">{this.state.battle.opponentName}</div>
-                    <Board className="enemyBoard" drawObjects={0} cellSize={30} color={"black"} textColor={"white"}/>
-                  </div>
+                  {/*in the battleboard props - whether to show ships, hits*/}
+                  <BattleBoard title={this.state.user.name} ships={this.state.ships} hits={this.state.battle.opponentsHits} notclickable={true} cellSize={30} color={"seagreen"}/>
+                  <BattleBoard title={this.state.battle.opponentName} hits={this.state.battle.ourHits} notclickable={false} cellSize={30} color={"black"} textColor={"white"}/>
                 </div>
                 <div className="battleControls mb-1 border">
                   <p className="list-group-item bg-dark text-white p-1">battle controls</p>

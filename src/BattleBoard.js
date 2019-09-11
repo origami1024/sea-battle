@@ -23,7 +23,7 @@ export default class BattleBoard extends Component {
     return(
       <div className="partWrapper mb-0">
         <div className="list-group-item bg-dark text-white p-1">{this.props.title || '--empty--'}</div>
-        <Board className="ownBoard" ships={this.state.ships || []} hits={this.state.hits || []} drawShips={1} drawHits={1} cellSize={this.props.cellSize} notclickable={false} color={this.props.color}/>
+        <Board className="ownBoard" ships={this.props.ships || []} hits={this.props.hits || []} drawShips={1} drawHits={1} cellSize={this.props.cellSize} notclickable={this.props.notclickable} color={this.props.color} textColor={this.props.textColor}/>
       </div>
     )
   }

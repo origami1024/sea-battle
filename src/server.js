@@ -372,18 +372,22 @@ const cmds = {
           ourHits: [],
           opponentsHits: [],
           ourThisTurnHit: [],
-          opponentThisTurnHit: []
+          opponentThisTurnHit: [],
+          battleName: rooms[users[usrID].inRoom].gName,
+          opponentName: users[rooms[users[usrID].inRoom].open].uName
         }
         let tmpMatchInfo2 = {
           ourHits: [],
           opponentsHits: [],
           ourThisTurnHit: [],
-          opponentThisTurnHit: []
+          opponentThisTurnHit: [],
+          battleName: rooms[users[usrID].inRoom].gName,
+          opponentName: users[usrID].uName
         }
         try {
           users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
             cmd:'new',
-            tmpMatchInfo1
+            data: tmpMatchInfo1
           }))
         } catch {
           console.log('ERROR sending to player 1 at ggo')
@@ -391,7 +395,7 @@ const cmds = {
         try {
           users[rooms[users[usrID].inRoom].open].socket.send(JSON.stringify({
             cmd:'new',
-            tmpMatchInfo2
+            data: tmpMatchInfo2
           }))
         } catch {
           console.log('ERROR sending to player 2 at ggo')

@@ -2,24 +2,20 @@
 ##technologies: nodejs, websockets, react, bootstrap, stylus
 
 ## TODO:
-23. Now working at: implementing ggo command in the server, sending both dudes needed match info, setting turn timer
+24. setting turn timer at match start and between turns
+25. receive hits only 1 per player per turn - preventing cheating
+26. implement the making turn command from client - put data in the base, send back - wait or newturn! and also newturn! to other dude, reset timer
 1. login with cookies, generate sessions and store/check with postgres db
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
 8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now elements are moved externally through js!!!
-12. player stats, like win/lose; levels
-13. player info
-14. add scrolling and maxHeight to the gameslist and to the playerlist in app
+12. player info - player stats, like win/lose; levels
 15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
-16. fix the interface in prebattle
-17. arrange battle interface
-18. send game ended command
-19. time to do turn limit!
 20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
 21. handle leaving while game is starting
-22. in the room there should be tag - if in staging or in battle
+22. in the roomlist there should be tag - if in staging or in battle
 
 
 ## to start the server:

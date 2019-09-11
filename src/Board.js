@@ -168,7 +168,7 @@ export default class Board extends Component {
   render() {
     //console.log('board rendered')
     return(
-      <canvas ref="canvas" width={(this.state.w+1)*this.props.cellSize} height={(this.state.h+1)*this.props.cellSize} onClick={this.onClick} />
+      <canvas ref="canvas" width={(this.state.w+1)*this.props.cellSize} height={(this.state.h+1)*this.props.cellSize} onClick={this.onClick} style={{cursor: "pointer"}}/>
     )
   }
 }
