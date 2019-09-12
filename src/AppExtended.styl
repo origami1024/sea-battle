@@ -31,3 +31,15 @@
 @media (max-width: 400px)
   .gamesListView
     max-height 45vh
+
+
+.blinkingText{
+    animation:blinkingText 2s infinite;
+}
+@keyframes blinkingText{
+    0%{     color: #000;    }
+    33%{    color: transparent; }
+    66%{    color: transparent; }
+    99%{    color: #000;  }
+    100%{   color: #000;    }
+}

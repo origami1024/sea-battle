@@ -332,7 +332,7 @@ export default class PiecePositioningPart extends Component {
           <button style={{position: 'absolute', top: '5px', right: '5px'}}onClick={this.randomPlacement}>Random!</button>
         </div>
         <div className="boardAndPlacer container" onDragStart={this.props.piecesLocked ? ()=>{} : ev=>{this.drag(ev)}}  onDragOver={this.props.piecesLocked ? ()=>{} : ev=>{this.dragOver(ev)}} onDrop={this.props.piecesLocked ? ()=>{} : ev=>{this.drop(ev)}}>
-          <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={false}/>
+          <Board className="preBoard" drawObjects={0} cellSize={this.props.cellSize} notclickable={true}/>
           {this.state.shipElements}
           <div className="shadow" style={this.state.shadowStyle}>
           </div>

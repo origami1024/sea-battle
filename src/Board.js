@@ -72,8 +72,8 @@ export default class Board extends Component {
       if ((cellX<this.state.w) && (cellY<this.state.h)) {
         this.setState({selectedCell: [cellX, cellY]})
       }
+      this.props.onHit([cellX, cellY])
     }
-    
   }
   drawShips = ctx => {
     //console.log('DRAWING SHIPS IN BOARD!')

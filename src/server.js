@@ -342,13 +342,13 @@ const cmds = {
         //create new match on server
         let tmpPlayers = {}
         tmpPlayers[usrID] = {
-          id: usrID,
+          //id: usrID, its in the key
           ships: rooms[users[usrID].inRoom].hostShips,
           hits: [], //player's attacks! maybe make a matrix with 0, and fill in the 1s, or just put hits for now, and send them all each time
           thisTurnHit: undefined //if undefined - havent done the turn
         }
         tmpPlayers[rooms[users[usrID].inRoom].open] = {
-          id: rooms[users[usrID].inRoom].open,
+          //id: rooms[users[usrID].inRoom].open,
           ships: rooms[users[usrID].inRoom].openShips,
           hits: [],
           thisTurnHit: undefined //if undefined - havent done the turn
@@ -357,9 +357,8 @@ const cmds = {
           //need a way to describe dead ships to see if a player has lost
           //in the room there should be tag - if in staging or in battle
           players: tmpPlayers,
-          matchID: -1, //from the counter
           matchName: '',
-          turn: 0,
+          turn: 0
         }
 
         //change the room info
@@ -442,10 +441,26 @@ const cmds = {
       
     }
   },
-  trn: (socket, cmd) => {
+  trn: (socket, cmd, usrID) => {
     //receive turn data
-    //put it into the game data
-    //if both players made turn, send out new turn
+    console.log(cmd.hit)
+
+    //check if user exists and is in battle
+    //check if battle exists
+    if ((users[usrID]) && (users[usrID].inRoom === -1) && (rooms[users[usrID].inRoom].battleId !== -1) && (rooms[users[usrID].inRoom].battleId in matches)) {
+      
+      //second check if hit already written for that player
+      if (matches[rooms[users[usrID].inRoom].battleId].players[usrID].thisTurnHit === undefined) {
+        //put it into the game data
+        matches[rooms[users[usrID].inRoom].battleId].players[usrID].thisTurnHit = cmd.hit;
+        
+        //if both players made turn, send out new turn to each (with data)
+        //change game data accordingly - +1 turn, current hit data = undefined for both
+        //--need to check if battle is over - cuz all ships killed
+        //--need to set the timer to skip the turn, that will be reset on the next mutual trn command
+      } else {clog('trn: player is sending hit data for same turn repeatedly!')}
+
+    }
   },
   ong: (socket, cmd) => {
     //answer to ping

@@ -5,6 +5,7 @@
 24. setting turn timer at match start and between turns
 25. receive hits only 1 per player per turn - preventing cheating
 26. implement the making turn command from client - put data in the base, send back - wait or newturn! and also newturn! to other dude, reset timer
+27. design of waiting between turns - disable turn button, disable possibility to choose hit on the field, loading bar with max time of turn shining somewhere
 1. login with cookies, generate sessions and store/check with postgres db
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
@@ -16,6 +17,8 @@
 20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
 21. handle leaving while game is starting
 22. in the roomlist there should be tag - if in staging or in battle
+28. BUG IN FIREFOX IN PREBATTLE SHIPS PLACEMENT - collision detection doesnt work propery, also sometimes ships selected not propery with naked shadow being dragged
+29. FIRST BUG HAPPENS IN CROME TOO - IT HAPPENS AFTER U DO READY/UNREADY
 
 
 ## to start the server:

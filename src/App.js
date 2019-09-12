@@ -81,7 +81,8 @@ class App extends Component {
       readyBox: false,
       //ships: [],
       ships: [{"id":"ship1_1_105","length":1,"posx":7,"posy":0,"orientation":false},{"id":"ship1_2_787","length":1,"posx":7,"posy":4,"orientation":false},{"id":"ship1_3_3233","length":1,"posx":7,"posy":2,"orientation":false},{"id":"ship2_1_1294","length":2,"posx":0,"posy":0,"orientation":false},{"id":"ship2_2_1946","length":2,"posx":4,"posy":7,"orientation":false},{"id":"ship2_3_2365","length":2,"posx":7,"posy":6,"orientation":true},{"id":"ship3_1_1838","length":3,"posx":3,"posy":0,"orientation":false},{"id":"ship3_2_1476","length":3,"posx":0,"posy":7,"orientation":false},{"id":"ship4_1_2690","length":4,"posx":0,"posy":2,"orientation":true}], //draw ships in canvas? //draw ships from props???,
-      globalChatLog: ''
+      globalChatLog: '',
+      curHit: undefined //[x, y]
     }
 
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
@@ -219,11 +220,12 @@ class App extends Component {
           this.tim.start(1)
           //on0 do the change of substage, but here do all the states perhaps
           //
+          console.log('cp new', data.data.battleName)
           console.log(JSON.stringify(this.state.ships))
           this.setState({battle: {
             battleState: 'turn', //waiting for the turn, other possible values - undefined and 'wait'
-            battleName: data.battleName,
-            opponentName: data.opponentName
+            battleName: data.data.battleName,
+            opponentName: data.data.opponentName
           }})
         } else 
         if (data.cmd === 'ord') {
@@ -428,6 +430,26 @@ class App extends Component {
     }
     return tmpList
   }
+
+  setHitData = hit => {
+    this.setState({curHit:hit})
+  }
+  doTurn = () => {
+    //check own battle state
+    if (this.state.battle.battleState === 'turn'){
+      if (this.state.curHit !== undefined) {
+        this.setState({battle:{...this.state.battle, battleState : 'wait'}})
+        //send hit data to the server
+        this.ws.send(JSON.stringify({
+          cmd: 'trn',
+          hit: this.curHit
+        }))
+      } else {alert('pick a turn!')}
+    } else {
+      alert('wait till the turn has ended... ' + this.state.battle.battleState)
+    }
+  }
+
   componentDidUpdate() {
     if (this.ta) {
       this.ta.scrollTop = this.ta.scrollHeight
@@ -448,16 +470,19 @@ class App extends Component {
         {(this.state.stage === 'logged')
           ? (this.state.substage !== 'battle') //battle
             ? <section className="main battle container">
-                <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName} : {this.state.battle.battleid}</div>
+                <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName}</div>
                 <div className="battleView d-flex justify-content-around border mb-1 pt-1">
                   {/*in the battleboard props - whether to show ships, hits*/}
-                  <BattleBoard title={this.state.user.name} ships={this.state.ships} hits={this.state.battle.opponentsHits} notclickable={true} cellSize={30} color={"seagreen"}/>
-                  <BattleBoard title={this.state.battle.opponentName} hits={this.state.battle.ourHits} notclickable={false} cellSize={30} color={"black"} textColor={"white"}/>
+                  <BattleBoard className="col" title={this.state.user.name} ships={this.state.ships} hits={this.state.battle.opponentsHits} notclickable={true} cellSize={30} color={"seagreen"}/>
+                  <div className="col border">
+                    <p className="blinkingText p-5">{this.state.battle.battleState === 'turn' ? 'it is your turn, make it happen!' : 'wait till your opponent makes his turn!'}</p>
+                  </div>
+                  <BattleBoard className="col" title={this.state.battle.opponentName} onHit={this.setHitData} hits={this.state.battle.ourHits} notclickable={this.state.battle.battleState!=='turn'} cellSize={30} color={"black"} textColor={"white"}/>
                 </div>
                 <div className="battleControls mb-1 border">
                   <p className="list-group-item bg-dark text-white p-1">battle controls</p>
                   <div className="battleControls__wrapper p-1">
-                    <button className="btn btn-outline-primary mx-1 py-1 px-2">make the turn</button>
+                    <button className="btn btn-outline-primary mx-1 py-1 px-2" onClick={this.doTurn}>make the turn</button>
                     <button className="btn btn-outline-primary mx-1 py-1 px-2">surrender</button>
                   </div>
                 </div>
