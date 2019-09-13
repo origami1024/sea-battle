@@ -13,6 +13,7 @@ let rooms = {
   1: {gName: 'small game', open: -1, host: 'hoster1', hostID: 888, opponentName: '--empty--', hostRdy: false, openRdy: false, hostShips: [], openShips: [], battleId: -1},
   2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo', hostRdy: false, openRdy: false, hostShips: [], openShips: [], battleId: -1}
 }
+const BATTLETURNINTERVAL = 30000 //30 seconds for testing, change later
 let matches = {}
 let userCounter = 1
 let roomCounter = 3
@@ -345,25 +346,34 @@ const cmds = {
           //id: usrID, its in the key
           ships: rooms[users[usrID].inRoom].hostShips,
           hits: [], //player's attacks! maybe make a matrix with 0, and fill in the 1s, or just put hits for now, and send them all each time
-          thisTurnHit: undefined //if undefined - havent done the turn
+          thisTurnHit: undefined, //if undefined - havent done the turn
+          turnsSkipped: 0 //if >5 then battle is lost
         }
         tmpPlayers[rooms[users[usrID].inRoom].open] = {
           //id: rooms[users[usrID].inRoom].open,
           ships: rooms[users[usrID].inRoom].openShips,
           hits: [],
-          thisTurnHit: undefined //if undefined - havent done the turn
+          thisTurnHit: undefined, //if undefined - havent done the turn
+          turnsSkipped: 0
         }
         matches[matchCounter] = {
           //need a way to describe dead ships to see if a player has lost
           //in the room there should be tag - if in staging or in battle
           players: tmpPlayers,
           matchName: '',
-          turn: 0
+          turn: 0,
+          turnTimer: undefined
         }
 
         //change the room info
         rooms[users[usrID].inRoom].battleId = matchCounter
         
+        //start the turn timer! reset on sendin nxt
+        let tmpMC = matchCounter 
+        matches[matchCounter].turnTimer = setInterval(function(){
+          turnSkip(tmpMC)
+        }, BATTLETURNINTERVAL)
+
         matchCounter += 1      
         //send to both - 'new' and the match info, that players will have to synchronize with
         //actually there is nothing to send at this point, so...
@@ -399,6 +409,9 @@ const cmds = {
         } catch {
           console.log('ERROR sending to player 2 at ggo')
         }
+        
+
+
       }
       
     }
@@ -466,7 +479,14 @@ const cmds = {
           /////////////////////////////////////
           //send out new turn to each (with data)
           sendTurnToBoth(rooms[users[usrID].inRoom].battleId)
-          //--need to set the timer to skip the turn, that will be reset on the next mutual trn command
+          
+          //reset the timer
+          clearInterval(matches[rooms[users[usrID].inRoom].battleId].turnTimer)
+
+          let tmpMC = rooms[users[usrID].inRoom].battleId 
+          matches[rooms[users[usrID].inRoom].battleId].turnTimer = setInterval(function(){
+          turnSkip(tmpMC)
+        }, BATTLETURNINTERVAL)
         }
       } else {clog('trn: player is sending hit data for same turn repeatedly!')}
 
@@ -495,6 +515,26 @@ const cmds = {
 
 
 ////some separate functions
+function turnSkip(battleId) {
+  console.log('battleId in the timer:', battleId)
+  console.log('GLOBAL MATCHCOUNTER: ', matchCounter)
+  let tmpPlayers = Object.keys(matches[battleId].players)
+  //add skipped turn to the dudes with undefined
+  if (matches[battleId].players[tmpPlayers[0]].thisTurnHit === undefined) {
+    matches[battleId].players[tmpPlayers[0]].turnsSkipped += 1
+  }
+  if (matches[battleId].players[tmpPlayers[1]].thisTurnHit === undefined) {
+    matches[battleId].players[tmpPlayers[1]].turnsSkipped += 1
+  }
+  //set the battle data for both players
+  matches[battleId].turn += 1
+  //send nxt to both
+  sendTurnToBoth(battleId)
+  
+  //this timer should be reset on the trn, if both players make it
+}
+
+
 function sendTurnToBoth(battleId) {
   let tmpPlayers = Object.keys(matches[battleId].players)
   let tmpMatchInfo1 = {
@@ -512,8 +552,6 @@ function sendTurnToBoth(battleId) {
     turn: matches[battleId].turn
   }
   
-  clog('tmpPlayer[0]: ' + tmpPlayers[0])
-  clog('tmpPlayer[1]: ' + tmpPlayers[1])
   try {
     //matches[battleId].players[tmpPLayer[0]]
     users[tmpPlayers[0]].socket.send(JSON.stringify({
@@ -534,6 +572,8 @@ function sendTurnToBoth(battleId) {
   }
   matches[battleId].players[tmpPlayers[0]].thisTurnHit = undefined
   matches[battleId].players[tmpPlayers[1]].thisTurnHit = undefined
+
+  //--need to set the timer to skip the turn, that will be reset on the next mutual trn command
 }
 
 clog('Server started')

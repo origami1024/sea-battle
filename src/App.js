@@ -247,6 +247,8 @@ class App extends Component {
             }
           })
           this.opponentsBoard.current.resetSelectedInside()
+          if (data.data.ourThisTurnHit === undefined) {console.log('WE SKIPPED A TURN!')}
+          if (data.data.opponentThisTurnHit === undefined) {console.log('OPPONENT SKIPPED A TURN!')}
           console.log('ourhits in nxt: ', data.data.ourHits)
           console.log('opnntshits in nxt: ', data.data.opponentsHits)
         } else 

@@ -2,9 +2,6 @@
 ##technologies: nodejs, websockets, react, bootstrap, stylus
 
 ## TODO:
-24. setting turn timer at match start and between turns
-25. receive hits only 1 per player per turn - preventing cheating
-26. implement the making turn command from client - put data in the base, send back - wait or newturn! and also newturn! to other dude, reset timer
 27. design of waiting between turns - disable turn button, disable possibility to choose hit on the field, loading bar with max time of turn shining somewhere
 1. login with cookies, generate sessions and store/check with postgres db
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
@@ -19,7 +16,11 @@
 22. in the roomlist there should be tag - if in staging or in battle
 28. BUG IN FIREFOX IN PREBATTLE SHIPS PLACEMENT - collision detection doesnt work propery, also sometimes ships selected not propery with naked shadow being dragged
 29. FIRST BUG HAPPENS IN CROME TOO - IT HAPPENS AFTER U DO READY/UNREADY
-
+30. Lose check in the turn event
+31. implement surrendering
+32. implement drop, and waiting for rejoining - after authorization fixing
+33. Good Auth with cookies and postgresql
+34. deleting rooms with dropped players on new room creation
 
 ## to start the server:
 go to src/ and do
