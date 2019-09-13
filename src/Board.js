@@ -90,10 +90,10 @@ export default class Board extends Component {
       ctx.strokeStyle = "red"
       ctx.lineWidth = 9
       ctx.beginPath()
-      ctx.moveTo(hit.x * this.props.cellSize, hit.y * this.props.cellSize)
-      ctx.lineTo(this.props.cellSize + hit.x * this.props.cellSize, this.props.cellSize + hit.y * this.props.cellSize)
-      ctx.moveTo(this.props.cellSize + hit.x * this.props.cellSize, hit.y * this.props.cellSize)
-      ctx.lineTo(hit.x * this.props.cellSize, this.props.cellSize + hit.y * this.props.cellSize)
+      ctx.moveTo(hit[0] * this.props.cellSize, hit[1] * this.props.cellSize)
+      ctx.lineTo(this.props.cellSize + hit[0] * this.props.cellSize, this.props.cellSize + hit[1] * this.props.cellSize)
+      ctx.moveTo(this.props.cellSize + hit[0] * this.props.cellSize, hit[1] * this.props.cellSize)
+      ctx.lineTo(hit[0] * this.props.cellSize, this.props.cellSize + hit[1] * this.props.cellSize)
       ctx.stroke()
       ctx.lineWidth = 3
     })
@@ -117,6 +117,11 @@ export default class Board extends Component {
       this.drawSelected(this.state.ctx, this.state.selectedCell || null)
     }
   }
+
+  resetSelectedEndPoint = () => {
+    this.setState({selectedCell: null})
+  }
+
   componentDidMount() {
     //console.log('Board compDidMount')
     const canvas = this.refs.canvas
@@ -159,6 +164,7 @@ export default class Board extends Component {
     this.setState({images, imagesR})
     //this.setState({img: this.refs.image})
   }
+
   componentWillMount() {
     
   }

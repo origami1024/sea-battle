@@ -41,7 +41,7 @@ const cmds = {
             clog('socket is closed - user has been deleted:' + userCounter)
           } else socketChecker(userCounter)
           
-        },5000)
+        },10000)
     }
     socketChecker(userCounter)
     //more than 5 sec
@@ -447,17 +447,27 @@ const cmds = {
 
     //check if user exists and is in battle
     //check if battle exists
-    if ((users[usrID]) && (users[usrID].inRoom === -1) && (rooms[users[usrID].inRoom].battleId !== -1) && (rooms[users[usrID].inRoom].battleId in matches)) {
+    if ((users[usrID]) && (users[usrID].inRoom !== -1) && (rooms[users[usrID].inRoom].battleId !== -1) && (rooms[users[usrID].inRoom].battleId in matches)) {
       
       //second check if hit already written for that player
       if (matches[rooms[users[usrID].inRoom].battleId].players[usrID].thisTurnHit === undefined) {
         //put it into the game data
         matches[rooms[users[usrID].inRoom].battleId].players[usrID].thisTurnHit = cmd.hit;
+        matches[rooms[users[usrID].inRoom].battleId].players[usrID].hits.push(cmd.hit)
+        //clog('CP 1 DOWN (IN THE TRN)')
         
-        //if both players made turn, send out new turn to each (with data)
-        //change game data accordingly - +1 turn, current hit data = undefined for both
-        //--need to check if battle is over - cuz all ships killed
-        //--need to set the timer to skip the turn, that will be reset on the next mutual trn command
+        //check if both players made turn,
+        let opponentId = rooms[users[usrID].inRoom].hostID === usrID ? rooms[users[usrID].inRoom].open : rooms[users[usrID].inRoom].hostID
+        if ((matches[rooms[users[usrID].inRoom].battleId].players[usrID].thisTurnHit !== undefined) && (matches[rooms[users[usrID].inRoom].battleId].players[opponentId].thisTurnHit !== undefined)) {
+          clog('CHECKPOINT IN TURN!')
+          //change match data accordingly - +1 turn, current hit data = undefined for both
+          matches[rooms[users[usrID].inRoom].battleId].turn += 1
+          //--need to check if battle is over - cuz all ships killed
+          /////////////////////////////////////
+          //send out new turn to each (with data)
+          sendTurnToBoth(rooms[users[usrID].inRoom].battleId)
+          //--need to set the timer to skip the turn, that will be reset on the next mutual trn command
+        }
       } else {clog('trn: player is sending hit data for same turn repeatedly!')}
 
     }
@@ -483,6 +493,48 @@ const cmds = {
 
 ///6. ping request to see if socket dropped??? on timer?
 
+
+////some separate functions
+function sendTurnToBoth(battleId) {
+  let tmpPlayers = Object.keys(matches[battleId].players)
+  let tmpMatchInfo1 = {
+    ourHits: matches[battleId].players[tmpPlayers[0]].hits,
+    opponentsHits: matches[battleId].players[tmpPlayers[1]].hits,
+    ourThisTurnHit: matches[battleId].players[tmpPlayers[0]].thisTurnHit,
+    opponentThisTurnHit: matches[battleId].players[tmpPlayers[1]].thisTurnHit,
+    turn: matches[battleId].turn
+  }
+  let tmpMatchInfo2 = {
+    ourHits: matches[battleId].players[tmpPlayers[1]].hits,
+    opponentsHits: matches[battleId].players[tmpPlayers[0]].hits,
+    ourThisTurnHit: matches[battleId].players[tmpPlayers[1]].thisTurnHit,
+    opponentThisTurnHit: matches[battleId].players[tmpPlayers[0]].thisTurnHit,
+    turn: matches[battleId].turn
+  }
+  
+  clog('tmpPlayer[0]: ' + tmpPlayers[0])
+  clog('tmpPlayer[1]: ' + tmpPlayers[1])
+  try {
+    //matches[battleId].players[tmpPLayer[0]]
+    users[tmpPlayers[0]].socket.send(JSON.stringify({
+      cmd:'nxt',
+      data: tmpMatchInfo1
+    }))
+  } catch {
+    console.log('ERROR sending to player1 at sendTurnToBoth')
+  }
+  try {
+    //matches[battleId].players[tmpPLayer[0]]
+    users[tmpPlayers[1]].socket.send(JSON.stringify({
+      cmd:'nxt',
+      data: tmpMatchInfo2
+    }))
+  } catch {
+    console.log('ERROR sending to player2 at sendTurnToBoth')
+  }
+  matches[battleId].players[tmpPlayers[0]].thisTurnHit = undefined
+  matches[battleId].players[tmpPlayers[1]].thisTurnHit = undefined
+}
 
 clog('Server started')
 clog('--------------')
