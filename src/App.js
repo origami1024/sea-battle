@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import './App.css';
 import './AppExtended.css';
 import Board from './Board'
 import PiecePositioningPart from './PiecePositioningPart'
@@ -488,7 +486,7 @@ class App extends Component {
     const order = [this.state.room.ishost, this.state.room.ishost % 2]
     const onlineDudes = this.prepareOnlineDudes(this.state.onlineUsersList)
     return (
-      <div className="App">
+      <div className="App container">
         <NavBar>
           <ProfileControl ref={(node)=>{this.PControl = node}} onProfileChange={this.onProfileChange} stage={this.state.stage} onLogin={this.doLogin} onLogout={this.doLogout}/>
           {/*<button onClick={e=>{this.ws.send(JSON.stringify({cmd:"prt"}))}}>prt</button>*/}
@@ -516,44 +514,47 @@ class App extends Component {
                 <button onClick={e=>{this.setState({battle: {chatLog: this.state.battle.chatLog + '\ntrolo'}})}}>testChatF</button>
               </section>
             : (this.state.substage === '') //general lobby
-              ? <section className="main container d-flex p-0">
-                  <div className="mainMain col-10">
-                    <div className="roomsControl d-flex py-1 px-2 list-group-item bg-dark text-white mb-1">
-                      <button onClick={this.queryGLRefresh} className="btn btn-primary">Refresh</button>
-                      <span className="input-group" style={{paddingLeft: "10px", width: "350px"}}>
-                        <input type="text" className="roomsControl__roomInput form-control" value={this.state.gamename} onChange={e=>{this.setState({gamename: e.target.value})}} />
-                        <div className="input-group-append">
-                          <button onClick={this.queNewRoom} className="btn btn-primary">New</button>
+              ? <section className="main container p-0">
+                  <div className="row m-0 p-0">
+                    <div className="mainMain col-9 col-sm-10 px-1 px-sm-2 px-md-3">
+                      <div className="roomsControl d-flex py-1 px-2 list-group-item bg-dark text-white mb-1">
+                        <button onClick={this.queryGLRefresh} className="btn btn-primary">Refresh</button>
+                        <span className="input-group" style={{paddingLeft: "10px", width: "350px"}}>
+                          <input type="text" className="roomsControl__roomInput form-control" value={this.state.gamename} onChange={e=>{this.setState({gamename: e.target.value})}} />
+                          <div className="input-group-append">
+                            <button onClick={this.queNewRoom} className="btn btn-primary">New</button>
+                          </div>
+                        </span>
+                        <span style={{paddingLeft: "10px"}}>
+                        {
+                          this.state.joining
+                          ?  <span>JOINING...</span>
+                          :  <button className="btn btn-primary" onClick={this.queryjoinRoom} disabled={!(this.state.rDActiveIndex in this.state.roomsData)}>Join</button>
+                        }
+                        </span>
+                      </div>
+                      <div className="list-group mb-2">
+                        <div className="gamesListHeader list-group-item bg-dark text-white py-0" style={{width:"100%", display:'flex'}}>
+                          <span style={{width:"40%"}} className="py-1">game name</span>
+                          <span style={{width:"30%"}} className="py-1">host</span>
+                          <span style={{width:"15%"}} className="py-1">players</span>
+                          <span style={{width:"15%"}} className="py-1">modes</span>
                         </div>
-                      </span>
-                      <span style={{paddingLeft: "10px"}}>
-                      {
-                        this.state.joining
-                        ?  <span>JOINING...</span>
-                        :  <button className="btn btn-primary" onClick={this.queryjoinRoom} disabled={!(this.state.rDActiveIndex in this.state.roomsData)}>Join</button>
-                      }
-                      </span>
-                    </div>
-                    <div className="list-group mb-2">
-                      <div className="gamesListHeader list-group-item bg-dark text-white py-0" style={{width:"100%", display:'flex'}}>
-                        <span style={{width:"40%"}} className="py-1">game name</span>
-                        <span style={{width:"30%"}} className="py-1">host</span>
-                        <span style={{width:"15%"}} className="py-1">players</span>
-                        <span style={{width:"15%"}} className="py-1">modes</span>
+                        <div className="gamesListView">
+                          {rooms}
+                        </div>
                       </div>
-                      <div className="gamesListView">
-                        {rooms}
-                      </div>
+                      <ChatForm title="Global chat" sendRoomMsg={val=>{this.sendGlobalMsg(val)}} newLog={this.state.globalChatLog} style={{marginTop: 'auto'}}/>
                     </div>
-                    <ChatForm title="Global chat" sendRoomMsg={val=>{this.sendGlobalMsg(val)}} newLog={this.state.globalChatLog} style={{marginTop: 'auto'}}/>
+                    <aside className="col-3 col-sm-2 m-0 p-0 h-auto bg-dark rounded">
+                      <h3 className="small gamesListHeader list-group-item bg-dark text-white p-1">playerlist - from ws (based on active sockets) : nn</h3>
+                      <ul className="list-group" style={{maxHeight: "90vh", overflowY: 'auto', overflowX: 'hidden'}}>{onlineDudes}</ul>
+                    </aside>
                   </div>
-                  <aside className="col-2 m-0 p-0 h-auto bg-dark rounded">
-                    <h3 className="small gamesListHeader list-group-item bg-dark text-white p-1">playerlist - from ws (based on active sockets) : nn</h3>
-                    <ul className="list-group" style={{maxHeight: "90vh", overflowY: 'auto', overflowX: 'hidden'}}>{onlineDudes}</ul>
-                  </aside>
+                  
                 </section>
               : (this.state.substage === 'gameLobby') //prebattle / room lobby prestart
-                ? <section className="main container">
+                ? <section className="main container p-0 m-0">
                     <div className="list-group-item bg-dark text-white p-1">Room <strong>{this.state.room.roomName}</strong> : {this.state.room.roomID}</div>
                     <div className="d-flex border mb-1">
                       <div className="d-flex flex-column w-50">
@@ -561,8 +562,8 @@ class App extends Component {
                           <span className="w-50 py-1">{this.state.user.name}</span>
                           <span className={`w-50 custom-control custom-checkbox py-1 ${this.state.readyBox ? "bg-success" :"bg-warning"}`}>
                             <div className="custom-control custom-checkbox p-0">
-                              <input className="custom-control-input" onChange={this.toggleReady} disabled={false/*this.state.readyLock*/} type="checkbox" id="gameLobby__readyCB" checked={this.state.readyBox}/>
-                              <label className="custom-control-label" htmlFor="gameLobby__readyCB">
+                              <input className="custom-control-input rdyOrNot" onChange={this.toggleReady} disabled={false/*this.state.readyLock*/} type="checkbox" id="gameLobby__readyCB" checked={this.state.readyBox}/>
+                              <label className="custom-control-label rdyOrNot" htmlFor="gameLobby__readyCB">
                                 {this.state.readyBox ? 'Ready' : 'Not ready'}
                               </label>
                             </div>
@@ -570,7 +571,7 @@ class App extends Component {
                         </div>
                         <div className="gameLobby__playerLine" style={{display:'flex', order: order[1]}}>
                           <span className="w-50 py-1">{this.state.room.opponentName}</span>
-                          <span className={`w-50 py-1 ${this.state.room.opponentRdy ? "bg-success" :"bg-warning"}`}>{this.state.room.opponentRdy ? 'Ready' : 'Not ready'}</span>
+                          <span className={`rdyOrNot w-50 py-1 ${this.state.room.opponentRdy ? "bg-success" :"bg-warning"}`}>{this.state.room.opponentRdy ? 'Ready' : 'Not ready'}</span>
                         </div>
                       </div>
                       <div className="d-flex w-50">
@@ -579,8 +580,8 @@ class App extends Component {
                         //<label htmlFor="gameLobby__readyCB">ready</label>*/
                         }
                         <div className="d-inline m-0">
-                          <button className="btn btn-outline-primary m-0 m-md-1" onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
-                          <button className="btn btn-outline-primary m-0 m-md-1" onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
+                          <button className="btn btn-outline-primary m-0 m-md-1 py-1 py-md-2" onClick={this.kekOpponent} disabled={this.state.room.ishost !== 1}>kick out</button>
+                          <button className="btn btn-outline-primary m-0 m-md-1 py-1 py-md-2" onClick={this.queryLaunchGame} disabled={this.state.room.ishost !== 1}>launch</button>  
                         </div>
                       </div>
                     </div>

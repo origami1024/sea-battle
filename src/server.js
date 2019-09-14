@@ -14,6 +14,7 @@ let rooms = {
   2: {gName: 'big game', host: 'blooper4', hostID: 889, open: 333, opponentName: 'derpo', hostRdy: false, openRdy: false, hostShips: [], openShips: [], battleId: -1}
 }
 const BATTLETURNINTERVAL = 30000 //30 seconds for testing, change later
+const USERLIFECHECKERINTERVAL = 20000 //
 let matches = {}
 let userCounter = 1
 let roomCounter = 3
@@ -42,12 +43,10 @@ const cmds = {
             clog('socket is closed - user has been deleted:' + userCounter)
           } else socketChecker(userCounter)
           
-        },10000)
+        }, USERLIFECHECKERINTERVAL)
     }
     socketChecker(userCounter)
-    //more than 5 sec
-    //what do we do on checking?
-    //////PINGING END
+
     userCounter += 1
     try {
       socket.send('{"cmd": "lok"}')//login ok = lok

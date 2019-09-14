@@ -16,12 +16,18 @@ class NavBar extends Component {
   }
   render() {
     return(
-      <nav className="navbar navbar-dark bg-primary fixed-top">
-        <div className="container">
-          <Link className="navbar-brand" to="/">
-            Sea Battle
-          </Link>
-          {this.props.children}
+      <nav className="navbar navbar-dark bg-primary fixed-top my-0">
+        <div className="container py-0 my-0" style={{maxHeight: "50px"}}>
+          <div className="row">
+            <div className="col-3 px-0 mx-0">
+              <Link className="navbar-brand logoSeaBattle" to="/">
+                Sea Battle
+              </Link>
+            </div>
+            <div className="col-9 px-0 my-auto mx-0">
+              {this.props.children}
+            </div>
+          </div>
         </div>
       </nav>
     )

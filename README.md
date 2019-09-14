@@ -8,7 +8,6 @@
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
-8. in the preBattlePlacing component - make so that all ships are drawn purely from data in state, and so that it refreshes on some actions. For now elements are moved externally through js!!!
 12. player info - player stats, like win/lose; levels
 15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
 20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
@@ -21,6 +20,7 @@
 32. implement drop, and waiting for rejoining - after authorization fixing
 33. Good Auth with cookies and postgresql
 34. deleting rooms with dropped players on new room creation
+
 
 ## to start the server:
 go to src/ and do
