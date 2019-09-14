@@ -321,13 +321,13 @@ const cmds = {
     clog('all')
     let tmp = []
     for (key in users) {
-      tmp.push({ uID: key, uName: users[key].uName})
+      tmp.push({ uID: key, uName: users[key].uName, inRoom: users[key].inRoom})
     }
     console.log(tmp)
     try {
       socket.send(JSON.stringify({
         cmd: 'her',
-        uList: tmp
+        uList: tmp,
       }))
     } catch {
       console.log('error at all')

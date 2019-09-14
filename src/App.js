@@ -425,7 +425,7 @@ class App extends Component {
     for (let key in list) {
       tmpList.push(
         <li key={key} className="list-group-item list-group-item-action" style={{padding: '3px 0'}}>
-          <a href={"userinfo?user=" + list[key].uID } target={'_blanc'}>{list[key].uName}</a>
+          <a href={"userinfo?user=" + list[key].uID } target={'_blanc'}>{list[key].uName}{list[key].inRoom === -1 ? "": <span className='badge badge-primary badge-pill'>busy</span>}</a>
         </li>
       )
     }

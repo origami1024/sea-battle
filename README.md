@@ -8,7 +8,6 @@
 5. login cookies and routing, so that on rejoining u go on same page? though the socket already dropped?
 6. give the dropped some time to come back
 12. player info - player stats, like win/lose; levels
-15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
 21. handle leaving while game is starting
 30. Lose check in the turn event
 31. implement surrendering
