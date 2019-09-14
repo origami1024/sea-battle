@@ -2,7 +2,6 @@
 ##technologies: nodejs, websockets, react, bootstrap, stylus
 
 ## TODO:
-27. design of waiting between turns - disable turn button, disable possibility to choose hit on the field, loading bar with max time of turn shining somewhere
 1. login with cookies, generate sessions and store/check with postgres db
 3. (CLIENT) redo the design, so its responsive from start, add meta tag for mobile, use stylus
 4. on login - server should send to everyone logged, that new user is in/// or perhaps autorefresh active users each n second in each client
@@ -10,17 +9,16 @@
 6. give the dropped some time to come back
 12. player info - player stats, like win/lose; levels
 15. player list - show if player is in room or not, so u can understand if he can hear u in global chat
-20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
 21. handle leaving while game is starting
-22. in the roomlist there should be tag - if in staging or in battle
-28. BUG IN FIREFOX IN PREBATTLE SHIPS PLACEMENT - collision detection doesnt work propery, also sometimes ships selected not propery with naked shadow being dragged
-29. FIRST BUG HAPPENS IN CROME TOO - IT HAPPENS AFTER U DO READY/UNREADY
 30. Lose check in the turn event
 31. implement surrendering
 32. implement drop, and waiting for rejoining - after authorization fixing
 33. Good Auth with cookies and postgresql
 34. deleting rooms with dropped players on new room creation
-
+36. in battle - send info if its hit or miss
+## TODO for late:
+20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
+27. design of waiting between turns - disable turn button
 
 ## to start the server:
 go to src/ and do

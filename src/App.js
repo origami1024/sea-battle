@@ -37,6 +37,10 @@ class StartTimer {
   }
 }
 
+
+//CONSTANTS
+const TURNTIMER = 30
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -85,7 +89,8 @@ class App extends Component {
       ships: [{"id":"ship1_1_105","length":1,"posx":7,"posy":0,"orientation":false},{"id":"ship1_2_787","length":1,"posx":7,"posy":4,"orientation":false},{"id":"ship1_3_3233","length":1,"posx":7,"posy":2,"orientation":false},{"id":"ship2_1_1294","length":2,"posx":0,"posy":0,"orientation":false},{"id":"ship2_2_1946","length":2,"posx":4,"posy":7,"orientation":false},{"id":"ship2_3_2365","length":2,"posx":7,"posy":6,"orientation":true},{"id":"ship3_1_1838","length":3,"posx":3,"posy":0,"orientation":false},{"id":"ship3_2_1476","length":3,"posx":0,"posy":7,"orientation":false},{"id":"ship4_1_2690","length":4,"posx":0,"posy":2,"orientation":true}], //draw ships in canvas? //draw ships from props???,
       globalChatLog: '',
       curHit: undefined, //[x, y]
-      selectionReset1: false
+      turnCountdown: TURNTIMER,
+      turnCountdownTimer: undefined
     }
 
     this.tim = new StartTimer({onTickExternal: c=>{this.addRoomMsg('*', c + ' sec to start')}, on0: e=>{this.changeSubStage('battle')}})
@@ -223,6 +228,8 @@ class App extends Component {
           this.tim.start(1)
           //on0 do the change of substage, but here do all the states perhaps
           //
+          let newTimer = setInterval(this.cdTimer, 1000);
+          this.setState({turnCountdownTimer: newTimer})
           console.log('cp new', data.data.battleName)
           console.log(JSON.stringify(this.state.ships))
           this.setState({battle: {
@@ -249,6 +256,7 @@ class App extends Component {
           if (data.data.opponentThisTurnHit === undefined) {console.log('OPPONENT SKIPPED A TURN!')}
           console.log('ourhits in nxt: ', data.data.ourHits)
           console.log('opnntshits in nxt: ', data.data.opponentsHits)
+          this.setState({turnCountdown: TURNTIMER})
         } else 
         if (data.cmd === 'ord') {
           this.setState({room:{...this.state.room,opponentRdy: data.ord}})
@@ -260,7 +268,9 @@ class App extends Component {
     }
     
   }
-
+  cdTimer = e=> {
+    this.setState({turnCountdown : this.state.turnCountdown - 1})
+  }
   queryLaunchGame = e => {
     //ggo
     console.log(this.state.room.ishost === 1)
@@ -326,7 +336,7 @@ class App extends Component {
       //alert(this.state.readyBox)
 
       //deleting some props in the ships before sending
-      let tmpShips = !this.state.readyBox ? this.state.ships : []
+      let tmpShips = !this.state.readyBox ? Object.assign({}, this.state.ships) : []
       for (var i = 0, len = tmpShips.length; i < len; i++) {
         delete tmpShips[i].initPosx
         delete tmpShips[i].initPosy
@@ -406,19 +416,8 @@ class App extends Component {
     }))
   }
   clickRoomList = room => {
-    console.log('clickRoomList')
+    //console.log('clickRoomList')
     this.setState({rDActiveIndex: room})
-    /*
-    let tmpRoom = this.state.roomsData
-    console.log(tmpRoom)
-    for (let key in tmpRoom) {
-      if (key !== room) {
-        tmpRoom[key].active = false
-      } else {
-        tmpRoom[key].active = !tmpRoom[key].active
-      }
-    }
-    this.setState({roomsData:{ ...this.state.roomsData}})*/
   }
 
   prepareOnlineDudes = list => {
@@ -446,6 +445,9 @@ class App extends Component {
             ?  <span className="badge badge-primary badge-pill">1/2</span>
             :  <span className="badge badge-primary badge-pill">2/2</span>
           }
+          </span>
+          <span style={{width:"15%"}} className="py-0">
+            {rooms[room].battleId === -1 ? "staging" : "battle"}
           </span>
         </div>
       )
@@ -494,7 +496,7 @@ class App extends Component {
         {(this.state.stage === 'logged')
           ? (this.state.substage === 'battle') //battle
             ? <section className="main battle container">
-                <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName}, turn: {this.state.battle.turn}</div>
+                <div className="list-group-item bg-dark text-white p-1">{this.state.battle.battleName}, turn: {this.state.battle.turn}, turn timer: {this.state.turnCountdown + " seconds"}</div>
                 <div className="battleView d-flex justify-content-around border mb-1 pt-1">
                   {/*in the battleboard props - whether to show ships, hits*/}
                   <BattleBoard className="col" title={this.state.user.name} ships={this.state.ships} hits={this.state.battle.opponentsHits} notclickable={true} cellSize={30} color={"seagreen"}/>
@@ -510,7 +512,7 @@ class App extends Component {
                     <button className="btn btn-outline-primary mx-1 py-1 px-2">surrender</button>
                   </div>
                 </div>
-                <ChatForm sendRoomMsg={val=>{alert(val)}} newLog={this.state.battle.chatLog}/>
+                <ChatForm title="room chat" sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
                 <button onClick={e=>{this.setState({battle: {chatLog: this.state.battle.chatLog + '\ntrolo'}})}}>testChatF</button>
               </section>
             : (this.state.substage === '') //general lobby
@@ -587,7 +589,7 @@ class App extends Component {
                     </div>
                     
                     <PiecePositioningPart params={[3,3,2,1]} cellSize={30} onReadyChange={this.setReady} piecesLocked={this.state.readyBox}/>
-                    <ChatForm sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
+                    <ChatForm title="room chat" sendRoomMsg={val=>{this.sendRoomMsg(val)}} newLog={this.state.room.chatLog}/>
                   </section>
                 : <div>something else</div>
             : <div>something else huh</div>

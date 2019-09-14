@@ -247,6 +247,7 @@ export default class PiecePositioningPart extends Component {
   readyUpdate = () => {
     //console.log(JSON.stringify(this.state.ships))
     this.props.onReadyChange(!this.checkAllShipsPlacementReadyness(), this.state.ships)
+    //console.log(this.state.ships)
   }
   rotateShip = (target) => {
     if (!this.props.piecesLocked) { //on ready - no pieces movement
@@ -320,7 +321,7 @@ export default class PiecePositioningPart extends Component {
         
       }
     });
-    console.log("lilength:",listItems.length)
+    console.log("PREPARE SHIPS!")
     this.setState({ships: tmpShips, shipElements: listItems})
   }
   render() {

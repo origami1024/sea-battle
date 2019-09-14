@@ -56,11 +56,15 @@ class ProfileControl extends Component {
     //render 1 of 3 conditions
     if (this.state.currentState === 'login') {
       return (
-        <form className="profileControlLogin col" onSubmit={this.signIn}>
-          <div className="row">
-          <input className="col-3 small mx-1 px-1" type="text" value={this.state.userField} onChange={this.onUChange} placeholder="username" />
-          <input className="col-3 small mx-1 px-1" type="text" value={this.state.pwField} onChange={this.onPWChange} placeholder="password" />
-          <input type="submit" className="col-3 mx-1 btn btn-dark btn-sm"  value="Sign In" />
+        <form className="profileControlLogin row p-2 m-0 rounded-pill bg-dark justify-content-center" onSubmit={this.signIn}>
+          <div className="col-4 p-0 m-0 px-1">
+            <input className="small px-1 w-100" type="text" value={this.state.userField} onChange={this.onUChange} placeholder="username" />
+          </div>
+          <div className="col-4 p-0 m-0 px-1">
+            <input className="small px-1 w-100" type="text" value={this.state.pwField} onChange={this.onPWChange} placeholder="password" />
+          </div>
+          <div className="offset-1 col-3 p-0 m-0 ml-2">
+            <input type="submit" className="w-100 btn btn-outline-primary btn-sm"  value="Sign In" />
           </div>
         </form>
       )

@@ -382,7 +382,8 @@ const cmds = {
           ourThisTurnHit: [],
           opponentThisTurnHit: [],
           battleName: rooms[users[usrID].inRoom].gName,
-          opponentName: users[rooms[users[usrID].inRoom].open].uName
+          opponentName: users[rooms[users[usrID].inRoom].open].uName,
+          turn: 0
         }
         let tmpMatchInfo2 = {
           ourHits: [],
@@ -390,7 +391,8 @@ const cmds = {
           ourThisTurnHit: [],
           opponentThisTurnHit: [],
           battleName: rooms[users[usrID].inRoom].gName,
-          opponentName: users[usrID].uName
+          opponentName: users[usrID].uName,
+          turn: 0
         }
         try {
           users[rooms[users[usrID].inRoom].hostID].socket.send(JSON.stringify({
