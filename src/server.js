@@ -4,6 +4,23 @@ clog = str => console.log(`[DEBUG] ${str}.`)
 
 //websocket server
 
+var pg = require('pg');
+var pgConString = "postgres://postgres:123456@localhost:5432/seabattle";
+
+var pgClient = new pg.Client(pgConString);
+pgClient.connect();
+//pgClient.query("INSERT INTO users(name, pwHash) values('Ted', 'pw')");
+//CONTINUE THIS - user registration part, then user auth, then logout, then rejoin
+//pgUtils
+function pgReg(name, pwHash){
+  clog('PGREG!!!!!')
+  //check if name and pwHash is ok to put in db
+  //then check with db if its unique
+  //if yes - insert new user
+  //send back to user that u got registered or that its failure
+}
+
+
 const webSoc = require('ws')
 const server = new webSoc.Server({
   port: 12345
@@ -20,6 +37,13 @@ let userCounter = 1
 let roomCounter = 3
 let matchCounter = 1
 const cmds = {
+  reg: (socket, data) => {
+    //check if name is unique in db
+    //If so - put new user into the db
+    //send back re1 'registersuccess'
+    //or re2 - failure
+    pgReg(data.name, data.pwHash)
+  },
   lgn: (socket, data) => {
     let user = {
       socket: socket,

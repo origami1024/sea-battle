@@ -13,10 +13,10 @@ import ship4r from './ship4Rotated.png'
   what should be the board component
   1. draw the canvas of the board itself
   2. draw the numbers and letters to mark the lines and rows
-  3. animation on mouse move - crossing line on line - can be turned on/off for some boards
-
   4. canvas ships in the battle?
   5. canvas hit marks
+
+  3. animation on mouse move - crossing line on line - can be turned on/off for some boards
   6. animation of hit
 
   ships should be handled in separate component at the point of placement

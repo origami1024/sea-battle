@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './AppExtended.css';
-import Board from './Board'
 import PiecePositioningPart from './PiecePositioningPart'
 import NavBar from './NavBar'
 import ProfileControl from './ProfileControl'

@@ -15,9 +15,13 @@
 33. Good Auth with cookies and postgresql
 34. deleting rooms with dropped players on new room creation
 36. in battle - send info if its hit or miss
+37. Dropped users list - when dropped, what was the id, what room belonged - all the user info transferred there, so new dud can be reasigned that info onto his socket
+
+
 ## TODO for late:
 20. in prebattle, when u press ready - make animation, that hides the ship placing part behind some closing door, and the field to be darker, like its locked, maybe write in the middle 'LOCKED'
 27. design of waiting between turns - disable turn button
+28. board animation - on mousemove - shiny targetting cross
 
 ## to start the server:
 go to src/ and do
