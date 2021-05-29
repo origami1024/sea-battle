@@ -16,7 +16,7 @@
     "react-scripts": "^3.1.1",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
-    "ws": "^6.2.0"
+    "ws": "^7.4.6"
   },
   "scripts": {
     "build-css": "stylus -c src/ --out src/",
